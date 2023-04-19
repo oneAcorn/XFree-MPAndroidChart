@@ -43,7 +43,7 @@ Add it in your root build.gradle at the end of the repositories:
 
 ## Usage
 
-Most of the usage for XFree-MPAndroidChart are the same as for [MPAndroidChart](https://github.com/PhilJay/MPAndroidChart).
+Most of the usages for XFree-MPAndroidChart are the same as for [MPAndroidChart](https://github.com/PhilJay/MPAndroidChart).
 
 The differences are shown below.
 
@@ -55,19 +55,19 @@ The differences are shown below.
     android:layout_height="match_parent" />
   ```
 
-2. Create LineDataSet
+2. Create a LineDataSet
 ```kotlin
-//In XFree-MPAndroidChart we use XFreeLineDataSet instead of LineDataSet
+//In XFree-MPAndroidChart we use the XFreeLineDataSet instead of the LineDataSet
 val set = XFreeLineDataSet(binding.lineChart, null, "Test Data")
-//when mPointVisibleThreshold<=0 the circles on the lines will always display.
+//when mPointVisibleThreshold<=0 the circles on the lines will always displayed.
 //when mPointVisibleThreshold>0,
-//Whether the circles are displayed is determined by the number of entries displayed simultaneously on the screen.
-//when the number of entries displayed on the screen less than mPointVisibleThreshold, the circles will display
+//Whether the circles are displayed or not is determined by the number of entries which simultaneously shown on the screen
+//When the number of entries shown on the screen is less than the mPointVisibleThreshold, those circles will be displayed.
 set.mPointVisibleThreshold = 100
 ```
 
-3 Create Highlighter
+3 Create the Highlighter
 ```kotlin
-//In XFree-MPAndroidChart we use XFreeHighlighter instead of ChartHighlighter
+//In XFree-MPAndroidChart we use the XFreeHighlighter instead of the ChartHighlighter
 xFreeChart.highlighter = XFreeHighlighter(this)
 ```
