@@ -20,11 +20,19 @@ Note that the performance of XFree-MPAndroidChart is slightly inferior to that o
 
 use XFreeLineDataSet.mPointVisibleThreshold to determined whether the circles are displayed
 
+```kotlin
+//when mPointVisibleThreshold<=0 the circles on the lines will always displayed.
+//when mPointVisibleThreshold>0,
+//Whether the circles are displayed or not is determined by the number of entries which simultaneously shown on the screen
+//When the number of entries shown on the screen is less than the mPointVisibleThreshold, those circles will be displayed.
+mXFreeLineDataSet.mPointVisibleThreshold = 100
+```
+
 ![github](https://github.com/oneAcorn/XFree-MPAndroidChart/blob/master/docs/diplay_circles_by_screen.gif)
 
 Select Area
 
-![github](https://github.com/oneAcorn/XFree-MPAndroidChart/blob/master/docs/select_area.png)
+![github](https://github.com/oneAcorn/XFree-MPAndroidChart/blob/master/docs/select%20area.png)
 
 ![github](https://github.com/oneAcorn/XFree-MPAndroidChart/blob/master/docs/select_area.gif)
 
@@ -74,11 +82,6 @@ The differences are shown below.
 ```kotlin
 //In XFree-MPAndroidChart we use the XFreeLineDataSet instead of the LineDataSet
 val set = XFreeLineDataSet(binding.lineChart, null, "Test Data")
-//when mPointVisibleThreshold<=0 the circles on the lines will always displayed.
-//when mPointVisibleThreshold>0,
-//Whether the circles are displayed or not is determined by the number of entries which simultaneously shown on the screen
-//When the number of entries shown on the screen is less than the mPointVisibleThreshold, those circles will be displayed.
-set.mPointVisibleThreshold = 100
 ```
 
 3 Create the Highlighter
