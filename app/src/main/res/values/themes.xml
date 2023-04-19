@@ -22,4 +22,19 @@
     <style name="Theme.XFreeChart.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.XFreeChart.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="MyToolBarTheme" parent="ThemeOverlay.AppCompat.Light">
+        <!--右上角更多图标的颜色-->
+        <item name="colorControlNormal">@color/black</item>
+        <item name="toolbarNavigationButtonStyle">@style/ToolbarNavigationButtonStyle</item>
+    </style>
+
+    <!--可以在此修改Toolbar的NavigationIcon样式-->
+    <style name="ToolbarNavigationButtonStyle" parent="@style/Widget.AppCompat.Toolbar.Button.Navigation">
+        <!--<item name="android:minWidth">30dp</item>-->
+        <!--<item name="android:padding">0dp</item>-->
+        <!--<item name="android:scaleType">centerInside</item>-->
+    </style>
+
+    <style name="Theme.BasicApp.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

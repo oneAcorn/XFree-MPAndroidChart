@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_add_data"
+        android:title="add data"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_reset_chart"
+        android:title="reset chart"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_select_area"
+        android:title="select area"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_limit_circles_number"
+        android:checkable="true"
+        android:title="limit circles number"
+        app:showAsAction="never" />
+</menu>
