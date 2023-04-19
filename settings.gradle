@@ -2,11 +2,6 @@ pluginManagement {
     repositories {
         google()
         mavenCentral()
-        jcenter()
-//        maven {
-//            url 'https://dl.google.com/dl/android/maven2/'
-//        }
-//        maven { url "https://maven.google.com" }
         maven { url 'https://jitpack.io' }
         gradlePluginPortal()
     }
@@ -16,11 +11,6 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        jcenter()
-//        maven {
-//            url 'https://dl.google.com/dl/android/maven2/'
-//        }
-//        maven { url "https://maven.google.com" }
         maven { url 'https://jitpack.io' }
     }
 }
