@@ -46,7 +46,7 @@ afterEvaluate {
             release(MavenPublication) {
                 groupId = 'com.github.acorn'
                 artifactId = 'xfreechart'
-                version = '1.0.9'
+                version = '1.0.10'
 
                 from components.release
             }
@@ -65,5 +65,4 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
     implementation 'androidx.annotation:annotation:1.6.0'
-//    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20"
 }
