@@ -17,4 +17,3 @@ dependencyResolutionManagement {
 rootProject.name = "XFreeChart"
 include ':app'
 include ':library'
-include ':MPChartLib'
