@@ -14,6 +14,21 @@ E/AndroidRuntime: FATAL EXCEPTION: main
 
 Note that the performance of XFree-MPAndroidChart is slightly inferior to that of [MPAndroidChart](https://github.com/PhilJay/MPAndroidChart)
 
+## Preview
+
+![github](https://github.com/oneAcorn/XFree-MPAndroidChart/blob/master/docs/pic0.png)
+
+use XFreeLineDataSet.mPointVisibleThreshold to determined whether the circles are displayed
+
+![github](https://github.com/oneAcorn/XFree-MPAndroidChart/blob/master/docs/diplay_circles_by_screen.gif)
+
+Select Area
+
+![github](https://github.com/oneAcorn/XFree-MPAndroidChart/blob/master/docs/select_area.png)
+
+![github](https://github.com/oneAcorn/XFree-MPAndroidChart/blob/master/docs/select_area.gif)
+
+
 ## Installation
 
 
