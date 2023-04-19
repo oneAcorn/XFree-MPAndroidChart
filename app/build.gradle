@@ -48,5 +48,5 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
     implementation project(":library")
-//    implementation 'com.github.acorn:xfreechart.library'
+//    implementation 'com.github.oneAcorn:XFree-MPAndroidChart:v1.0'
 }
