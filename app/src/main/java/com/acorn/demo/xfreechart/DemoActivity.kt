@@ -5,13 +5,21 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.acorn.demo.xfreechart.databinding.ActivityDemoBinding
+import com.acorn.xfreechart.library.XFreeLineChart
+import com.acorn.xfreechart.library.dataset.XFreeLineDataSet
 import com.acorn.xfreechart.library.highlight.XFreeHighlighter
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.components.YAxis
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.listener.ChartTouchListener
 import com.github.mikephil.charting.listener.OnChartGestureListener
+import com.github.mikephil.charting.utils.ColorTemplate
+import kotlin.random.Random
 
 /**
  * Created by acorn on 2023/4/18.
@@ -29,6 +37,89 @@ class DemoActivity : AppCompatActivity() {
             onBackPressed()
         }
         binding.toolbar.title = "Demo"
+        initLineChart()
+        addData()
+    }
+
+    private fun addData() {
+        for (i in 0..100) {
+            addEntry(Entry(Random.nextInt(5000).toFloat(), Random.nextInt(5000).toFloat()))
+        }
+    }
+
+    private fun resetChart() {
+        binding.lineChart.clear()
+    }
+
+    private fun selectArea() {
+        binding.lineChart.enterSelectAreaMode { selectedSets ->
+            for (set in selectedSets) {
+                Toast.makeText(
+                    this@DemoActivity,
+                    "select(${set.set.label}):${set.entrys}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    private fun setCirclesDisplayThreshold(threshold: Int) {
+        val lineData = binding.lineChart.lineData ?: return
+        for (set in lineData.dataSets) {
+            if (set is XFreeLineDataSet<*>) {
+                set.mPointVisibleThreshold = threshold
+                set.notifyDataSetChanged()
+            }
+        }
+        binding.lineChart.invalidate()
+    }
+
+    private fun addEntry(entry: Entry) {
+        var lineData = binding.lineChart.data
+        if (lineData == null) {
+            val data = LineData()
+            data.setValueTextColor(Color.WHITE)
+            // add empty data
+            binding.lineChart.data = data
+            lineData = data
+        }
+        //a dataset represents a line
+        var dataSet = lineData.getDataSetByIndex(0)
+        if (dataSet == null) {
+            dataSet = createSet()
+            lineData.addDataSet(dataSet)
+        }
+        //add entry to the first line.
+        lineData.addEntry(entry, 0)
+        lineData.notifyDataChanged()
+
+        // let the chart know it's data has changed
+        binding.lineChart.notifyDataSetChanged()
+
+        // limit the number of visible entries
+//        lineChart.setVisibleXRangeMaximum(120f)
+        // chart.setVisibleYRange(30, AxisDependency.LEFT);
+
+        // move to the latest entry(this automatically refreshes the chart (calls invalidate()))
+        binding.lineChart.moveViewToX(lineData.entryCount.toFloat())
+//        lineChart.invalidate()
+    }
+
+    private fun createSet(): XFreeLineDataSet<XFreeLineChart> {
+        val set = XFreeLineDataSet(binding.lineChart, null, "Test Data")
+        set.axisDependency = YAxis.AxisDependency.LEFT
+        set.color = ColorTemplate.getHoloBlue()
+        set.setCircleColor(Color.WHITE)
+        set.setDrawCircles(true)
+        set.lineWidth = 2f
+        set.circleRadius = 4f
+        set.fillAlpha = 65
+        set.fillColor = ColorTemplate.getHoloBlue()
+        set.highLightColor = Color.rgb(244, 117, 117)
+        set.valueTextColor = Color.WHITE
+        set.valueTextSize = 9f
+        set.setDrawValues(false)
+        return set
     }
 
     private fun initLineChart() {
@@ -157,12 +248,18 @@ class DemoActivity : AppCompatActivity() {
         var isConsume = true
         when (item.itemId) {
             R.id.action_reset_chart -> {
+                resetChart()
             }
             R.id.action_add_data -> {
+                addData()
             }
             R.id.action_select_area -> {
+                selectArea()
             }
             R.id.action_limit_circles_number -> {
+                item.isChecked = !item.isChecked
+                val threshold = if (item.isChecked) 50 else -1
+                setCirclesDisplayThreshold(threshold)
             }
             else -> {
                 isConsume = false

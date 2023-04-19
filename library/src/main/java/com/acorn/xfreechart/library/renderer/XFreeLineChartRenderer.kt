@@ -1,6 +1,7 @@
 package com.acorn.xfreechart.library.renderer
 
 import android.graphics.*
+import android.util.Log
 import com.acorn.xfreechart.library.dataset.XFreeLineDataSet
 import com.acorn.xfreechart.library.extendfun.safeGetEntryForIndex
 import com.github.mikephil.charting.animation.ChartAnimator
@@ -23,6 +24,7 @@ class XFreeLineChartRenderer(
     animator: ChartAnimator,
     viewPortHandler: ViewPortHandler
 ) : DataRenderer(animator, viewPortHandler) {
+    private val TAG = "XFreeLineChartRenderer"
 
     /**
      * paint for the inner circle of the value indicators
@@ -281,7 +283,7 @@ class XFreeLineChartRenderer(
             }
             needDrawAmount++
         }
-
+//        Log.i(TAG, "drawCirclesToCanvasByThreshold: $needDrawAmount,$pointsLimitAmount")
         if (needDrawAmount > pointsLimitAmount) return
         drawCirclesToCanvas(c, dataSet, trans, phaseY, imageCache, circleRadius)
     }
