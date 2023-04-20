@@ -18,6 +18,13 @@ E/AndroidRuntime: FATAL EXCEPTION: main
 
 ## Preview
 
+已排序数据
+
+![github](https://github.com/oneAcorn/XFree-MPAndroidChart/blob/master/docs/sorted%20data.png)
+
+
+未排序数据
+
 ![github](https://github.com/oneAcorn/XFree-MPAndroidChart/blob/master/docs/pic0.png)
 
 使用XFreeLineDataSet.mPointVisibleThreshold决定是否该显示圆点.当屏幕上点数少于此阈值时才显示 
