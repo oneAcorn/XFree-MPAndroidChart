@@ -2,7 +2,7 @@
 
 [ ***中文文档*** ](https://github.com/oneAcorn/XFree-MPAndroidChart/blob/master/CHINESES_README.md)
 
-XFree-MPAndroidChart is based on [MPAndroidChart](https://github.com/PhilJay/MPAndroidChart), The purpose of this library is to solve the problem that the LineChart of [MPAndroidChart](https://github.com/PhilJay/MPAndroidChart) can't add unsorted entries.
+XFree-MPAndroidChart is based on [MPAndroidChart](https://github.com/PhilJay/MPAndroidChart) 3.1.0, The purpose of this library is to solve the problem that the LineChart of [MPAndroidChart](https://github.com/PhilJay/MPAndroidChart) can't add unsorted entries.
 When adding unsorted entries to [MPAndroidChart](https://github.com/PhilJay/MPAndroidChart), it will crash and the following error is displayed
 
 ```java
