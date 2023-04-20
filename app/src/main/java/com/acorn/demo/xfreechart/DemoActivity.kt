@@ -38,10 +38,16 @@ class DemoActivity : AppCompatActivity() {
         }
         binding.toolbar.title = "Demo"
         initLineChart()
-        addData()
+//        addUnsortedData()
     }
 
-    private fun addData() {
+    private fun addSortedData() {
+        for (i in 0..100) {
+            addEntry(Entry(i.toFloat(), Random.nextInt(5000).toFloat()))
+        }
+    }
+
+    private fun addUnsortedData() {
         for (i in 0..100) {
             addEntry(Entry(Random.nextInt(5000).toFloat(), Random.nextInt(5000).toFloat()))
         }
@@ -247,11 +253,14 @@ class DemoActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         var isConsume = true
         when (item.itemId) {
+            R.id.action_add_sorted_data -> {
+                addSortedData()
+            }
+            R.id.action_add_unsorted_data -> {
+                addUnsortedData()
+            }
             R.id.action_reset_chart -> {
                 resetChart()
-            }
-            R.id.action_add_data -> {
-                addData()
             }
             R.id.action_select_area -> {
                 selectArea()
