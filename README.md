@@ -18,6 +18,12 @@ Note that the performance of XFree-MPAndroidChart is slightly inferior to that o
 
 ## Preview
 
+Sorted data
+
+![github](https://github.com/oneAcorn/XFree-MPAndroidChart/blob/master/docs/sorted%20data.png)
+
+Unsorted data
+
 ![github](https://github.com/oneAcorn/XFree-MPAndroidChart/blob/master/docs/pic0.png)
 
 use XFreeLineDataSet.mPointVisibleThreshold to determined whether the circles are displayed
