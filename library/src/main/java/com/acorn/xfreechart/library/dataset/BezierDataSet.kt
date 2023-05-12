@@ -1,9 +1,9 @@
 package com.acorn.xfreechart.library.dataset
 
+import android.graphics.Color
 import com.acorn.xfreechart.library.data.BezierEntry
 import com.github.mikephil.charting.components.YAxis.AxisDependency
 import com.github.mikephil.charting.data.Entry
-import kotlin.math.abs
 import kotlin.math.sin
 
 /**
@@ -14,32 +14,10 @@ fun main() {
     //小数取余不靠谱
 //    println("what:${3.3 % 1.1},${3.4f % 1.2f},${4 % 2}")
 //    println("left:${findSineLeftPeak2(2f)}")
+    val test = BezierDataSet(Color.GREEN, 2f, AxisDependency.LEFT)
     for (i in -10..10 step 2) {
-//        findSineLeftPeak2(i.toFloat())
-        findSineRightPeakN(i.toFloat())
+        println("$i -> ${test.findSinePeakX(i.toFloat(), true, 2.00, 0.00)}")
     }
-}
-
-private fun findSineLeftPeak2(x: Float): Double {
-    val halfPI: Double = Math.PI / 2.00
-    val dx = x.toDouble()
-    val n = (dx - halfPI) / Math.PI
-    //因为n需要转为int,此处防止比如-0.1转换时丢失负数
-    val minus = if (n > 0.00) 1 else -1
-    val n1 = abs(n.toInt())
-    val ret = n.toInt() * Math.PI + minus * halfPI
-    println("ret:$x -> ${n.toInt()}π + $minus*(π/2)")
-    return ret
-}
-
-private fun findSineRightPeakN(x: Float): Double {
-    val halfPI: Double = Math.PI / 2.00
-    val dx = x.toDouble()
-    val n = (dx + halfPI) / Math.PI
-    val minus = if (n > 0.00) 1 else -1
-    val ret = n.toInt() + minus * 0.50
-    println("$x -> ${n.toInt()}π + $minus*(π/2)")
-    return ret
 }
 
 class BezierDataSet(val color: Int, val lineWidth: Float, val axisDependency: AxisDependency) {
@@ -66,17 +44,24 @@ class BezierDataSet(val color: Int, val lineWidth: Float, val axisDependency: Ax
     }
 
     /**
-     * Add sine
+     * Add sine y = a*sin(b*x+c)+d
      * 每次用贝塞尔画π长的线段,如-π/2 -> π/2 or π/2 -> (3/2)π
      *
-     * @param startX
-     * @param endX
+     * @param startX 起始点,和abcd无关的值
+     * @param endX 结束点,和abcd无关的值
      */
-    fun addSine(startX: Float, endX: Float) {
-        val startLeftPeakN = findSinePeakN(startX, true)
-        val endLeftPeakPosition = findSinePeakN(endX, true) * Math.PI
+    fun addSine(
+        startX: Float,
+        endX: Float,
+        a: Double = 1.00,
+        b: Double = 1.00,
+        c: Double = 0.00,
+        d: Float = 0f
+    ) {
+        val startLeftPeakX = findSinePeakX(startX)
+        val endLeftPeakPosition = findSinePeakX(endX)
 //        val endRightPeakPosition = findSinePeakN(endX, false) * Math.PI
-        var curDrawPosition = startLeftPeakN * Math.PI
+        var curDrawPosition = startLeftPeakX
         val entries = mutableListOf<BezierEntry>()
         while (curDrawPosition <= endLeftPeakPosition) {
             //起始点
@@ -89,8 +74,8 @@ class BezierDataSet(val color: Int, val lineWidth: Float, val axisDependency: Ax
             //控制点2的x轴
             val controlX2 = leftX + (rightX - leftX) * BEZIER_SINE_RIGHT_CONTROL_K
             //结束点
-            val leftY = sin(leftX).toFloat()
-            val rightY = sin(rightX).toFloat()
+            val leftY = sin(leftX).toFloat() + d
+            val rightY = sin(rightX).toFloat() + d
             val entry = BezierEntry(
                 Entry(leftX.toFloat(), leftY),
                 Entry(controlX1.toFloat(), leftY),
@@ -104,17 +89,29 @@ class BezierDataSet(val color: Int, val lineWidth: Float, val axisDependency: Ax
 
     /**
      * Find sine bottom peak
+     * y = sin(b*x+c)
      * 找到贝塞尔曲线应该绘制的最左边起始点
      *
      * @param x
      * @param isLeft 左或右
-     * @return 返回n*π中的n.比如传入-2,则返回-3/2,表示应该以(-3/2)π为起始点
+     * @return
      */
-    private fun findSinePeakN(x: Float, isLeft: Boolean = true): Double {
+    fun findSinePeakX(
+        x: Float,
+        isLeft: Boolean = true,
+        b: Double = 1.00,
+        c: Double = 0.00
+    ): Double {
         val dx = x.toDouble()
-        val sineOffset = if (isLeft) -HALF_PI else HALF_PI
-        val n = (dx + sineOffset) / Math.PI
+        val sineOffset = if (isLeft) {
+            -(HALF_PI / b - c)
+        } else {
+            HALF_PI / b + c
+        }
+        //每次绘制多长(如果是sin(x),则每次绘制π长)
+        val drawSegmentLength = Math.PI / b
+        val n = (dx + sineOffset) / drawSegmentLength
         val minus = if (n > 0.00) 1 else -1
-        return n.toInt() + minus * 0.50
+        return (n.toInt() + minus * 0.50) * drawSegmentLength - c
     }
 }

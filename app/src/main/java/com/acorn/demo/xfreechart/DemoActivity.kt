@@ -46,12 +46,8 @@ class DemoActivity : AppCompatActivity() {
     }
 
     private fun addSortedData() {
-//        for (i in 0..200) {
-//            addEntry(Entry(i.toFloat(), Random.nextInt(100).toFloat()))
-//        }
-        for (i in -20..20) {
-            val minus = if (i % 2 == 0) 1 else -1
-            addEntry(Entry(i.toFloat(), Random.nextFloat() * minus * 2))
+        for (i in 0..200) {
+            addEntry(Entry(i.toFloat(), Random.nextInt(100).toFloat()))
         }
     }
 
@@ -137,7 +133,7 @@ class DemoActivity : AppCompatActivity() {
             dataSet = createBezierSet()
             bezierData.addDataSet(dataSet)
         }
-        dataSet.addSine(startX, endX)
+        dataSet.addSine(startX, endX, d = 3f)
         binding.lineChart.invalidate()
     }
 
@@ -301,11 +297,26 @@ class DemoActivity : AppCompatActivity() {
         addSine(-9f, 10f)
     }
 
-    private fun testSineData(maxX: Float, totalPoints: Int) {
-        var x = 0f
-        val step = maxX / totalPoints.toFloat()
-        while (x < maxX) {
-            addEntry(Entry(x, sin(x)))
+    /**
+     * Test sine data
+     * y = a*sin(b*x+c)+d
+     *
+     * @param startX
+     * @param endX
+     * @param totalPoints
+     */
+    private fun testSineData(
+        startX: Float, endX: Float, totalPoints: Int,
+        a: Double = 1.00,
+        b: Double = 1.00,
+        c: Double = 0.00,
+        d: Double = 1.00
+    ) {
+        var x = startX
+        val step = (endX - startX) / totalPoints.toFloat()
+        while (x < endX) {
+            val y = a * sin((b * x) + c) + d
+            addEntry(Entry(x, y.toFloat()))
             x += step
         }
     }
@@ -339,7 +350,7 @@ class DemoActivity : AppCompatActivity() {
                 testBezierData()
             }
             R.id.test_sine -> {
-                testSineData(200f, 4000)
+                testSineData(-20f, 20f, 4000, d = 3.00)
             }
             else -> {
                 isConsume = false
