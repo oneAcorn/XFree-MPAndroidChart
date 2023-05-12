@@ -9,6 +9,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.acorn.demo.xfreechart.databinding.ActivityDemoBinding
 import com.acorn.xfreechart.library.XFreeLineChart
+import com.acorn.xfreechart.library.data.BezierData
+import com.acorn.xfreechart.library.data.BezierEntry
+import com.acorn.xfreechart.library.dataset.BezierDataSet
 import com.acorn.xfreechart.library.dataset.XFreeLineDataSet
 import com.acorn.xfreechart.library.highlight.XFreeHighlighter
 import com.github.mikephil.charting.components.Legend
@@ -19,6 +22,7 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.listener.ChartTouchListener
 import com.github.mikephil.charting.listener.OnChartGestureListener
 import com.github.mikephil.charting.utils.ColorTemplate
+import kotlin.math.sin
 import kotlin.random.Random
 
 /**
@@ -42,8 +46,12 @@ class DemoActivity : AppCompatActivity() {
     }
 
     private fun addSortedData() {
-        for (i in 0..100) {
-            addEntry(Entry(i.toFloat(), Random.nextInt(5000).toFloat()))
+//        for (i in 0..200) {
+//            addEntry(Entry(i.toFloat(), Random.nextInt(100).toFloat()))
+//        }
+        for (i in -20..20) {
+            val minus = if (i % 2 == 0) 1 else -1
+            addEntry(Entry(i.toFloat(), Random.nextFloat() * minus * 2))
         }
     }
 
@@ -111,12 +119,38 @@ class DemoActivity : AppCompatActivity() {
 //        lineChart.invalidate()
     }
 
+    private fun addBezierEntry(bezierEntry: BezierEntry) {
+        val bezierData = binding.lineChart.getBezierData() ?: return
+        var dataSet = bezierData.getDataSet(0)
+        if (dataSet == null) {
+            dataSet = createBezierSet()
+            bezierData.addDataSet(dataSet)
+        }
+        dataSet.addEntry(bezierEntry)
+        binding.lineChart.invalidate()
+    }
+
+    private fun addSine(startX: Float, endX: Float) {
+        val bezierData = binding.lineChart.getBezierData() ?: return
+        var dataSet = bezierData.getDataSet(0)
+        if (dataSet == null) {
+            dataSet = createBezierSet()
+            bezierData.addDataSet(dataSet)
+        }
+        dataSet.addSine(startX, endX)
+        binding.lineChart.invalidate()
+    }
+
+    private fun createBezierSet(): BezierDataSet {
+        return BezierDataSet(Color.GREEN, 2f, YAxis.AxisDependency.LEFT)
+    }
+
     private fun createSet(): XFreeLineDataSet<XFreeLineChart> {
         val set = XFreeLineDataSet(binding.lineChart, null, "Test Data")
         set.axisDependency = YAxis.AxisDependency.LEFT
         set.color = ColorTemplate.getHoloBlue()
         set.setCircleColor(Color.WHITE)
-        set.setDrawCircles(true)
+        set.setDrawCircles(false)
         set.lineWidth = 2f
         set.circleRadius = 4f
         set.fillAlpha = 65
@@ -171,6 +205,8 @@ class DemoActivity : AppCompatActivity() {
 //            axisLeft.axisMinimum = 0f
             axisLeft.setDrawGridLines(true)
 //            axisLeft.setCenterAxisLabels(true)
+
+            setBezierData(BezierData())
 
             axisRight.isEnabled = false
 
@@ -245,6 +281,35 @@ class DemoActivity : AppCompatActivity() {
         }
     }
 
+    private fun testBezierData() {
+//        addBezierEntry(
+//            BezierEntry(
+//                Entry(0f, 0f),
+//                Entry(36.42f, 0f),
+//                Entry(63.58f, 100f),
+//                Entry(100f, 100f)
+//            )
+//        )
+//        addBezierEntry(
+//            BezierEntry(
+//                Entry(100f, 100f),
+//                Entry(136.42f, 100f),
+//                Entry(163.58f, 0f),
+//                Entry(200f, 0f)
+//            )
+//        )
+        addSine(-9f, 10f)
+    }
+
+    private fun testSineData(maxX: Float, totalPoints: Int) {
+        var x = 0f
+        val step = maxX / totalPoints.toFloat()
+        while (x < maxX) {
+            addEntry(Entry(x, sin(x)))
+            x += step
+        }
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_demo, menu)
         return true
@@ -269,6 +334,12 @@ class DemoActivity : AppCompatActivity() {
                 item.isChecked = !item.isChecked
                 val threshold = if (item.isChecked) 50 else -1
                 setCirclesDisplayThreshold(threshold)
+            }
+            R.id.test_bezier -> {
+                testBezierData()
+            }
+            R.id.test_sine -> {
+                testSineData(200f, 4000)
             }
             else -> {
                 isConsume = false

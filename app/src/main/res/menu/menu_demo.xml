@@ -27,4 +27,14 @@
         android:checkable="true"
         android:title="limit circles number"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/test_bezier"
+        android:title="test bezier"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/test_sine"
+        android:title="test sine"
+        app:showAsAction="never" />
 </menu>

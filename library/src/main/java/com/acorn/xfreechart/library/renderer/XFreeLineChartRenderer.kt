@@ -1,12 +1,12 @@
 package com.acorn.xfreechart.library.renderer
 
 import android.graphics.*
-import android.util.Log
+import com.acorn.xfreechart.library.dataprovider.XFreeDataProvider
+import com.acorn.xfreechart.library.dataset.BezierDataSet
 import com.acorn.xfreechart.library.dataset.XFreeLineDataSet
 import com.acorn.xfreechart.library.extendfun.safeGetEntryForIndex
 import com.github.mikephil.charting.animation.ChartAnimator
 import com.github.mikephil.charting.highlight.Highlight
-import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider
 import com.github.mikephil.charting.interfaces.datasets.IDataSet
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.github.mikephil.charting.interfaces.datasets.ILineScatterCandleRadarDataSet
@@ -20,7 +20,7 @@ import java.lang.ref.WeakReference
  * Created by acorn on 2023/4/7.
  */
 class XFreeLineChartRenderer(
-    private val mChart: LineDataProvider,
+    private val mChart: XFreeDataProvider,
     animator: ChartAnimator,
     viewPortHandler: ViewPortHandler
 ) : DataRenderer(animator, viewPortHandler) {
@@ -52,6 +52,8 @@ class XFreeLineChartRenderer(
     private var mBitmapConfig = Bitmap.Config.ARGB_8888
 
     private var mLineBuffer = FloatArray(4)
+
+    private val mBezierPath = Path()
 
     override fun initBuffers() {
     }
@@ -126,6 +128,55 @@ class XFreeLineChartRenderer(
 
     override fun drawExtras(c: Canvas?) {
         drawCircles(c)
+        drawBezier(c)
+    }
+
+    private fun drawBezier(c: Canvas?) {
+        c ?: return
+        val bezierData = mChart.getBezierData() ?: return
+        val bezierDataSets = bezierData.getDataSets()
+        if (bezierDataSets.isEmpty()) return
+        for (set in bezierDataSets) {
+            drawBezierDataSet(c, set)
+        }
+    }
+
+    private fun drawBezierDataSet(c: Canvas, dataSet: BezierDataSet) {
+        val bezierList = dataSet.mEntries
+        if (bezierList.isEmpty()) return
+        mRenderPaint.style = Paint.Style.STROKE
+        mRenderPaint.color = dataSet.color
+        mRenderPaint.strokeWidth = dataSet.lineWidth
+        mBezierPath.reset()
+        val trans = mChart.getTransformer(dataSet.axisDependency)
+        val p1Arr = FloatArray(2) //起始点
+        val h1Arr = FloatArray(2) //控制点1
+        val h2Arr = FloatArray(2) //控制点2
+        val p2Arr = FloatArray(2) //结束点
+        for (entry in bezierList) {
+            p1Arr[0] = entry.p1.x
+            p1Arr[1] = entry.p1.y
+            h1Arr[0] = entry.h1.x
+            h1Arr[1] = entry.h1.y
+            val h2 = entry.h2
+            if (h2 != null) {
+                h2Arr[0] = h2.x
+                h2Arr[1] = h2.y
+                trans.pointValuesToPixel(h2Arr)
+            }
+            p2Arr[0] = entry.p2.x
+            p2Arr[1] = entry.p2.y
+            trans.pointValuesToPixel(p1Arr)
+            trans.pointValuesToPixel(h1Arr)
+            trans.pointValuesToPixel(p2Arr)
+            mBezierPath.moveTo(p1Arr[0], p1Arr[1])
+            if (h2 == null) { //二阶贝塞尔
+                mBezierPath.quadTo(h1Arr[0], h1Arr[1], p2Arr[0], p2Arr[1])
+            } else { //三阶贝塞尔
+                mBezierPath.cubicTo(h1Arr[0], h1Arr[1], h2Arr[0], h2Arr[1], p2Arr[0], p2Arr[1])
+            }
+            c.drawPath(mBezierPath, mRenderPaint)
+        }
     }
 
     /**

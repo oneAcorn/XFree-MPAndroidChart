@@ -3,18 +3,20 @@ package com.acorn.xfreechart.library
 import android.content.Context
 import android.util.AttributeSet
 import android.view.ViewConfiguration
+import com.acorn.xfreechart.library.data.BezierData
+import com.acorn.xfreechart.library.dataprovider.XFreeDataProvider
 import com.acorn.xfreechart.library.renderer.XFreeLineChartRenderer
 import com.github.mikephil.charting.charts.BarLineChartBase
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.highlight.IHighlighter
-import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider
 import com.github.mikephil.charting.selectarea.SelectAreaHelper
 
 /**
  * x轴不必递增的LineChart
  * Created by acorn on 2023/4/7.
  */
-class XFreeLineChart : BarLineChartBase<LineData>, LineDataProvider {
+class XFreeLineChart : BarLineChartBase<LineData>, XFreeDataProvider {
+    private var _bezierData: BezierData? = null
 
     constructor(context: Context?, attrs: AttributeSet?, defStyle: Int) : super(
         context,
@@ -30,6 +32,12 @@ class XFreeLineChart : BarLineChartBase<LineData>, LineDataProvider {
         mRenderer = XFreeLineChartRenderer(this, mAnimator, mViewPortHandler)
         mSelectAreaHelper =
             SelectAreaHelper(this, ViewConfiguration.get(context).scaledTouchSlop, false, this)
+    }
+
+    override fun getBezierData(): BezierData? = _bezierData
+
+    fun setBezierData(bezierData: BezierData?) {
+        this._bezierData = bezierData
     }
 
     override fun getLineData(): LineData {
