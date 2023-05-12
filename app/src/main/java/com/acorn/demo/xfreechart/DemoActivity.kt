@@ -131,7 +131,7 @@ class DemoActivity : AppCompatActivity() {
         a: Double = 1.00,
         b: Double = 1.00,
         c: Double = 0.00,
-        d: Double = 1.00
+        d: Double = 0.00
     ) {
         val bezierData = binding.lineChart.getBezierData() ?: return
         var dataSet = bezierData.getDataSet(0)
@@ -284,12 +284,14 @@ class DemoActivity : AppCompatActivity() {
     }
 
     private fun testBezierData() {
+        addMockSineData(-5f, 5f, 2000)
+        addSine(-1f, 1f)
 //        addBezierEntry(
 //            BezierEntry(
 //                Entry(0f, 0f),
-//                Entry(36.42f, 0f),
-//                Entry(63.58f, 100f),
-//                Entry(100f, 100f)
+//                Entry(0.3642f, 0f),
+//                Entry(0.6358f, 1f),
+//                Entry(1f, 1f)
 //            )
 //        )
 //        addBezierEntry(
@@ -300,7 +302,23 @@ class DemoActivity : AppCompatActivity() {
 //                Entry(200f, 0f)
 //            )
 //        )
-        addSine(-9f, 10f)
+    }
+
+    private fun addMockSineData(
+        startX: Float, endX: Float, totalPoints: Int,
+        a: Double = 1.00,
+        b: Double = 1.00,
+        c: Double = 0.00,
+        d: Double = 0.00
+    ) {
+        //添加用一堆点模拟的sine曲线
+        var x = startX
+        val step = (endX - startX) / totalPoints.toFloat()
+        while (x < endX) {
+            val y = a * sin((b * x) + c) + d
+            addEntry(Entry(x, y.toFloat()))
+            x += step
+        }
     }
 
     /**
@@ -316,16 +334,9 @@ class DemoActivity : AppCompatActivity() {
         a: Double = 1.00,
         b: Double = 1.00,
         c: Double = 0.00,
-        d: Double = 1.00
+        d: Double = 0.00
     ) {
-        //添加用一堆点模拟的sine曲线
-        var x = startX
-        val step = (endX - startX) / totalPoints.toFloat()
-        while (x < endX) {
-            val y = a * sin((b * x) + c) + d
-            addEntry(Entry(x, y.toFloat()))
-            x += step
-        }
+        addMockSineData(startX, endX, totalPoints, a, b, c, d)
 
         //添加Sine公式绘制
         addSine(startX, endX, a, b, c, d)
@@ -357,10 +368,10 @@ class DemoActivity : AppCompatActivity() {
                 setCirclesDisplayThreshold(threshold)
             }
             R.id.test_bezier -> {
-//                testBezierData()
+                testBezierData()
             }
             R.id.test_sine -> {
-                testSineData(-20f, 20f, 4000, b = 2.00, c = 1.00, d = 3.00)
+                testSineData(-200f, 200f, 2000, b = 2.00, c = 1.00, d = 3.00)
             }
             else -> {
                 isConsume = false

@@ -154,6 +154,7 @@ class XFreeLineChartRenderer(
         val h2Arr = FloatArray(2) //控制点2
         val p2Arr = FloatArray(2) //结束点
         for (entry in bezierList) {
+
             p1Arr[0] = entry.p1.x
             p1Arr[1] = entry.p1.y
             h1Arr[0] = entry.h1.x
@@ -169,14 +170,21 @@ class XFreeLineChartRenderer(
             trans.pointValuesToPixel(p1Arr)
             trans.pointValuesToPixel(h1Arr)
             trans.pointValuesToPixel(p2Arr)
+
+            if (!mViewPortHandler.isInBoundsLeft(p2Arr[0]) ||
+                !mViewPortHandler.isInBoundsRight(p1Arr[0])
+            ) { //屏幕外的不画
+                continue
+            }
+
             mBezierPath.moveTo(p1Arr[0], p1Arr[1])
             if (h2 == null) { //二阶贝塞尔
                 mBezierPath.quadTo(h1Arr[0], h1Arr[1], p2Arr[0], p2Arr[1])
             } else { //三阶贝塞尔
                 mBezierPath.cubicTo(h1Arr[0], h1Arr[1], h2Arr[0], h2Arr[1], p2Arr[0], p2Arr[1])
             }
-            c.drawPath(mBezierPath, mRenderPaint)
         }
+        c.drawPath(mBezierPath, mRenderPaint)
     }
 
     /**

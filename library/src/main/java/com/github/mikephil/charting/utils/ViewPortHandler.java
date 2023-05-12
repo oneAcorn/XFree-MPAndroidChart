@@ -602,6 +602,7 @@ public class ViewPortHandler {
         return mContentRect.left <= x + 1;
     }
 
+    //是否在绘制右边范围内
     public boolean isInBoundsRight(float x) {
         x = (float) ((int) (x * 100.f)) / 100.f;
 //        LogExtendKt.logI("isInBoundsRight() " + x + ",mContentRect.right:" + mContentRect.right);
