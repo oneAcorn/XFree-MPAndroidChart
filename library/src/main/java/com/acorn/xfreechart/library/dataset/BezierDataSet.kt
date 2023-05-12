@@ -15,8 +15,8 @@ fun main() {
 //    println("what:${3.3 % 1.1},${3.4f % 1.2f},${4 % 2}")
 //    println("left:${findSineLeftPeak2(2f)}")
     val test = BezierDataSet(Color.GREEN, 2f, AxisDependency.LEFT)
-    for (i in -10..10 step 2) {
-        println("$i -> ${test.findSinePeakX(i.toFloat(), true, 2.00, 0.00)}")
+    for (i in -20..20 step 2) {
+        println("$i -> ${test.findSinePeakX(i.toFloat(), true, 2.00, 1.00)}")
     }
 }
 
@@ -58,15 +58,17 @@ class BezierDataSet(val color: Int, val lineWidth: Float, val axisDependency: Ax
         c: Double = 0.00,
         d: Float = 0f
     ) {
-        val startLeftPeakX = findSinePeakX(startX)
-        val endLeftPeakPosition = findSinePeakX(endX)
+        val startLeftPeakX = findSinePeakX(startX, b = b, c = c)
+        val endLeftPeakPosition = findSinePeakX(endX, b = b, c = c)
 //        val endRightPeakPosition = findSinePeakN(endX, false) * Math.PI
         var curDrawPosition = startLeftPeakX
         val entries = mutableListOf<BezierEntry>()
         while (curDrawPosition <= endLeftPeakPosition) {
             //起始点
             val leftX = curDrawPosition
-            curDrawPosition += Math.PI
+            //每次绘制多长(如果是sin(x),则每次绘制π长)
+            val drawSegmentLength = Math.PI / b
+            curDrawPosition += drawSegmentLength
             //结束点
             val rightX = curDrawPosition
             //控制点1的x轴
@@ -74,8 +76,8 @@ class BezierDataSet(val color: Int, val lineWidth: Float, val axisDependency: Ax
             //控制点2的x轴
             val controlX2 = leftX + (rightX - leftX) * BEZIER_SINE_RIGHT_CONTROL_K
             //结束点
-            val leftY = sin(leftX).toFloat() + d
-            val rightY = sin(rightX).toFloat() + d
+            val leftY = sin(b * leftX + c).toFloat() + d
+            val rightY = sin(b * rightX + c).toFloat() + d
             val entry = BezierEntry(
                 Entry(leftX.toFloat(), leftY),
                 Entry(controlX1.toFloat(), leftY),
@@ -102,16 +104,20 @@ class BezierDataSet(val color: Int, val lineWidth: Float, val axisDependency: Ax
         b: Double = 1.00,
         c: Double = 0.00
     ): Double {
+        //https://www.desmos.com/calculator
+        //b影响波长,bx会使波长缩小b倍
+        //c影响波的横移bx+c,c为正时,会使波向左横移c/b
+
         val dx = x.toDouble()
         val sineOffset = if (isLeft) {
-            -(HALF_PI / b - c)
+            -(HALF_PI / b - c / b)
         } else {
-            HALF_PI / b + c
+            HALF_PI / b + c / b
         }
         //每次绘制多长(如果是sin(x),则每次绘制π长)
         val drawSegmentLength = Math.PI / b
         val n = (dx + sineOffset) / drawSegmentLength
         val minus = if (n > 0.00) 1 else -1
-        return (n.toInt() + minus * 0.50) * drawSegmentLength - c
+        return (n.toInt() + minus * 0.50) * drawSegmentLength - c / b
     }
 }
