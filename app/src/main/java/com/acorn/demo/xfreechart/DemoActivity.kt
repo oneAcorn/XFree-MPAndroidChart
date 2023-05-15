@@ -22,6 +22,7 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.listener.ChartTouchListener
 import com.github.mikephil.charting.listener.OnChartGestureListener
 import com.github.mikephil.charting.utils.ColorTemplate
+import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
 
@@ -126,20 +127,15 @@ class DemoActivity : AppCompatActivity() {
         binding.lineChart.invalidate()
     }
 
-    private fun addSine(
-        startX: Float, endX: Float,
-        a: Double = 1.00,
-        b: Double = 1.00,
-        c: Double = 0.00,
-        d: Double = 0.00
-    ) {
+    private fun prepareBezierDataSetAndInvalidate(callback: BezierDataSet.() -> Unit) {
         val bezierData = binding.lineChart.getBezierData() ?: return
         var dataSet = bezierData.getDataSet(0)
         if (dataSet == null) {
             dataSet = createBezierSet()
             bezierData.addDataSet(dataSet)
         }
-        dataSet.addSine(startX, endX, a, b, c, d.toFloat())
+//        dataSet.addSine(startX, endX, a.toFloat(), b, c, d.toFloat())
+        callback.invoke(dataSet)
         binding.lineChart.invalidate()
     }
 
@@ -285,7 +281,9 @@ class DemoActivity : AppCompatActivity() {
 
     private fun testBezierData() {
         addMockSineData(-5f, 5f, 2000)
-        addSine(-1f, 1f)
+        prepareBezierDataSetAndInvalidate {
+            addSine(-1f, 1f)
+        }
 //        addBezierEntry(
 //            BezierEntry(
 //                Entry(0f, 0f),
@@ -321,6 +319,23 @@ class DemoActivity : AppCompatActivity() {
         }
     }
 
+    private fun addMockCosineData(
+        startX: Float, endX: Float, totalPoints: Int,
+        a: Double = 1.00,
+        b: Double = 1.00,
+        c: Double = 0.00,
+        d: Double = 0.00
+    ) {
+        //添加用一堆点模拟的sine曲线
+        var x = startX
+        val step = (endX - startX) / totalPoints.toFloat()
+        while (x < endX) {
+            val y = a * cos((b * x) + c) + d
+            addEntry(Entry(x, y.toFloat()))
+            x += step
+        }
+    }
+
     /**
      * Test sine data
      * y = a*sin(b*x+c)+d
@@ -339,7 +354,23 @@ class DemoActivity : AppCompatActivity() {
         addMockSineData(startX, endX, totalPoints, a, b, c, d)
 
         //添加Sine公式绘制
-        addSine(startX, endX, a, b, c, d)
+        prepareBezierDataSetAndInvalidate {
+            addSine(startX, endX, a.toFloat(), b, c, d.toFloat())
+        }
+    }
+
+    private fun testCosineData(
+        startX: Float, endX: Float, totalPoints: Int,
+        a: Double = 1.00,
+        b: Double = 1.00,
+        c: Double = 0.00,
+        d: Double = 0.00
+    ) {
+        addMockCosineData(startX, endX, totalPoints, a, b, c, d)
+
+        prepareBezierDataSetAndInvalidate {
+            addCosine(startX, endX, a.toFloat(), b, c, d.toFloat())
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -371,7 +402,11 @@ class DemoActivity : AppCompatActivity() {
                 testBezierData()
             }
             R.id.test_sine -> {
-                testSineData(-200f, 200f, 2000, b = 2.00, c = 1.00, d = 3.00)
+                testSineData(-10f, 10f, 2000, a = 4.00, b = -2.00, c = 1.00, d = 3.00)
+//                testSineData(-200f, 200f, 2000, a = -4.00, b = -2.00, c = -1.00, d = -3.00)
+            }
+            R.id.test_cosine -> {
+                testCosineData(-10f, 10f, 2000, a = 4.00, b = -2.00, c = 1.00, d = 3.00)
             }
             else -> {
                 isConsume = false
