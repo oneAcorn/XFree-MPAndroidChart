@@ -2,6 +2,8 @@ package com.acorn.xfreechart.library.dataprovider
 
 import com.acorn.xfreechart.library.data.BezierData
 import com.acorn.xfreechart.library.data.BezierEntry
+import com.acorn.xfreechart.library.data.FixedMarkerData
+import com.github.mikephil.charting.components.IMarker
 import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider
 
 /**
@@ -9,4 +11,8 @@ import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider
  */
 interface XFreeDataProvider : LineDataProvider {
     fun getBezierData(): BezierData?
+
+    fun getFixedMarkerData(): FixedMarkerData?
+
+    fun getMarker(): IMarker?
 }

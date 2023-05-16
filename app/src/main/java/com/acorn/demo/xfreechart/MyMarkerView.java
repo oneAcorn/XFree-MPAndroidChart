@@ -39,8 +39,12 @@ public class MyMarkerView extends MarkerView {
 
             tvContent.setText(Utils.formatNumber(ce.getHigh(), 0, true));
         } else {
-
-            tvContent.setText(e.getX() + "," + e.getY());
+            if (e.getData() != null && e.getData() instanceof String) {
+                String text = e.getData().toString();
+                tvContent.setText(text);
+            } else {
+                tvContent.setText(e.getX() + "," + e.getY());
+            }
         }
 
         super.refreshContent(e, highlight);

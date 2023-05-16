@@ -1,11 +1,13 @@
 package com.acorn.xfreechart.library.renderer
 
 import android.graphics.*
+import com.acorn.xfreechart.library.data.FixedMarkerEntry
 import com.acorn.xfreechart.library.dataprovider.XFreeDataProvider
 import com.acorn.xfreechart.library.dataset.BezierDataSet
 import com.acorn.xfreechart.library.dataset.XFreeLineDataSet
 import com.acorn.xfreechart.library.extendfun.safeGetEntryForIndex
 import com.github.mikephil.charting.animation.ChartAnimator
+import com.github.mikephil.charting.components.IMarker
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.interfaces.datasets.IDataSet
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
@@ -129,6 +131,7 @@ class XFreeLineChartRenderer(
     override fun drawExtras(c: Canvas?) {
         drawCircles(c)
         drawBezier(c)
+        drawMarkers(c)
     }
 
     private fun drawBezier(c: Canvas?) {
@@ -185,6 +188,29 @@ class XFreeLineChartRenderer(
             }
         }
         c.drawPath(mBezierPath, mRenderPaint)
+    }
+
+    private fun drawMarkers(c: Canvas?) {
+        c ?: return
+        val markerData = mChart.getFixedMarkerData() ?: return
+        val markers = markerData.getMarkers()
+        if (markers.isEmpty()) return
+        val mMarkerView = mChart.getMarker() ?: return
+        for (marker in markers) {
+            drawMarker(c, marker, mMarkerView)
+        }
+    }
+
+    private fun drawMarker(c: Canvas, markerEntry: FixedMarkerEntry, markerView: IMarker) {
+        val posArr = FloatArray(2)
+        posArr[0] = markerEntry.position.x
+        posArr[1] = markerEntry.position.y
+        val trans = mChart.getTransformer(markerEntry.axisDependency)
+        trans.pointValuesToPixel(posArr)
+        //不在绘制范围内
+        if (!mViewPortHandler.isInBounds(posArr[0], posArr[1])) return
+        markerView.refreshContent(markerEntry.textEntry, null)
+        markerView.draw(c, posArr[0], posArr[1])
     }
 
     /**

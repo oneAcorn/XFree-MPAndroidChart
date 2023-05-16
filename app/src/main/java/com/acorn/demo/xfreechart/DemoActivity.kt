@@ -11,6 +11,8 @@ import com.acorn.demo.xfreechart.databinding.ActivityDemoBinding
 import com.acorn.xfreechart.library.XFreeLineChart
 import com.acorn.xfreechart.library.data.BezierData
 import com.acorn.xfreechart.library.data.BezierEntry
+import com.acorn.xfreechart.library.data.FixedMarkerData
+import com.acorn.xfreechart.library.data.FixedMarkerEntry
 import com.acorn.xfreechart.library.dataset.BezierDataSet
 import com.acorn.xfreechart.library.dataset.XFreeLineDataSet
 import com.acorn.xfreechart.library.highlight.XFreeHighlighter
@@ -205,6 +207,7 @@ class DemoActivity : AppCompatActivity() {
 //            axisLeft.setCenterAxisLabels(true)
 
             setBezierData(BezierData())
+            setFixedMarkerData(FixedMarkerData())
 
             axisRight.isEnabled = false
 
@@ -373,6 +376,12 @@ class DemoActivity : AppCompatActivity() {
         }
     }
 
+    private fun testMarker() {
+        binding.lineChart.getFixedMarkerData()
+            ?.addMarker(FixedMarkerEntry(0, "Marker", Entry(0f, 0f), YAxis.AxisDependency.LEFT))
+        binding.lineChart.invalidate()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_demo, menu)
         return true
@@ -407,6 +416,9 @@ class DemoActivity : AppCompatActivity() {
             }
             R.id.test_cosine -> {
                 testCosineData(-10f, 10f, 2000, a = 4.00, b = -2.00, c = 1.00, d = 3.00)
+            }
+            R.id.test_marker -> {
+                testMarker()
             }
             else -> {
                 isConsume = false

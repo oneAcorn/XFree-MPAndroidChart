@@ -42,4 +42,9 @@
         android:id="@+id/test_cosine"
         android:title="test cosine"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/test_marker"
+        android:title="test fixed marker"
+        app:showAsAction="never" />
 </menu>

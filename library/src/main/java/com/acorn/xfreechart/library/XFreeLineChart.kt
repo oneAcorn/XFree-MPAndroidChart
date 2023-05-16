@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.ViewConfiguration
 import com.acorn.xfreechart.library.data.BezierData
+import com.acorn.xfreechart.library.data.FixedMarkerData
 import com.acorn.xfreechart.library.dataprovider.XFreeDataProvider
 import com.acorn.xfreechart.library.renderer.XFreeLineChartRenderer
 import com.github.mikephil.charting.charts.BarLineChartBase
@@ -17,6 +18,7 @@ import com.github.mikephil.charting.selectarea.SelectAreaHelper
  */
 class XFreeLineChart : BarLineChartBase<LineData>, XFreeDataProvider {
     private var _bezierData: BezierData? = null
+    private var _fixedMarkerData: FixedMarkerData? = null
 
     constructor(context: Context?, attrs: AttributeSet?, defStyle: Int) : super(
         context,
@@ -38,6 +40,12 @@ class XFreeLineChart : BarLineChartBase<LineData>, XFreeDataProvider {
 
     fun setBezierData(bezierData: BezierData?) {
         this._bezierData = bezierData
+    }
+
+    override fun getFixedMarkerData(): FixedMarkerData? = _fixedMarkerData
+
+    fun setFixedMarkerData(markerData: FixedMarkerData?) {
+        this._fixedMarkerData = markerData
     }
 
     override fun getLineData(): LineData {
