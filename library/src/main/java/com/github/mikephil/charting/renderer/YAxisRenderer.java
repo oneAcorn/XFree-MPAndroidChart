@@ -94,16 +94,42 @@ public class YAxisRenderer extends AxisRenderer {
         if (!mYAxis.isEnabled() || !mYAxis.isDrawAxisLineEnabled())
             return;
 
+        mAxisLinePaint.setAntiAlias(false);
         mAxisLinePaint.setColor(mYAxis.getAxisLineColor());
         mAxisLinePaint.setStrokeWidth(mYAxis.getAxisLineWidth());
 
         if (mYAxis.getAxisDependency() == AxisDependency.LEFT) {
             c.drawLine(mViewPortHandler.contentLeft(), mViewPortHandler.contentTop(), mViewPortHandler.contentLeft(),
                     mViewPortHandler.contentBottom(), mAxisLinePaint);
+            if (mYAxis.isDrawArrow()) {
+                drawArrowAndAxisLine(c, mViewPortHandler.contentLeft(), mViewPortHandler.contentTop());
+            }
         } else {
             c.drawLine(mViewPortHandler.contentRight(), mViewPortHandler.contentTop(), mViewPortHandler.contentRight(),
                     mViewPortHandler.contentBottom(), mAxisLinePaint);
+            if (mYAxis.isDrawArrow()) {
+                drawArrowAndAxisLine(c, mViewPortHandler.contentRight(), mViewPortHandler.contentTop());
+            }
         }
+    }
+
+    private final Path arrowAxisPath = new Path();
+
+    private void drawArrowAndAxisLine(
+            Canvas c,
+            float axisEndPointX,
+            float axisEndPointY
+    ) {
+        mAxisLinePaint.setAntiAlias(true);
+        mAxisLinePaint.setStrokeWidth(mYAxis.getArrowLineWidth());
+
+        arrowAxisPath.reset();
+        float halfArrowXOffset = (float) Math.sin(Math.toRadians(mYAxis.getArrowDegree())) * mYAxis.getArrowLength();
+        float halfArrowYOffset = (float) Math.cos(Math.toRadians(mYAxis.getArrowDegree())) * mYAxis.getArrowLength();
+        arrowAxisPath.moveTo(axisEndPointX - halfArrowXOffset, axisEndPointY + halfArrowYOffset);
+        arrowAxisPath.lineTo(axisEndPointX, axisEndPointY);
+        arrowAxisPath.lineTo(axisEndPointX + halfArrowXOffset, axisEndPointY + halfArrowYOffset);
+        c.drawPath(arrowAxisPath, mAxisLinePaint);
     }
 
     /**

@@ -113,7 +113,7 @@ public class XAxisRenderer extends AxisRenderer {
         mAxisLabelPaint.setTextSize(mXAxis.getTextSize());
         mAxisLabelPaint.setColor(mXAxis.getTextColor());
 
-        MPPointF pointF = MPPointF.getInstance(0,0);
+        MPPointF pointF = MPPointF.getInstance(0, 0);
         if (mXAxis.getPosition() == XAxisPosition.TOP) {
             pointF.x = 0.5f;
             pointF.y = 1.0f;
@@ -151,25 +151,58 @@ public class XAxisRenderer extends AxisRenderer {
         if (!mXAxis.isDrawAxisLineEnabled() || !mXAxis.isEnabled())
             return;
 
-        mAxisLinePaint.setColor(mXAxis.getAxisLineColor());
-        mAxisLinePaint.setStrokeWidth(mXAxis.getAxisLineWidth());
-        mAxisLinePaint.setPathEffect(mXAxis.getAxisLineDashPathEffect());
-
         if (mXAxis.getPosition() == XAxisPosition.TOP
                 || mXAxis.getPosition() == XAxisPosition.TOP_INSIDE
                 || mXAxis.getPosition() == XAxisPosition.BOTH_SIDED) {
+            mAxisLinePaint.setAntiAlias(false);
+            mAxisLinePaint.setColor(mXAxis.getAxisLineColor());
+            mAxisLinePaint.setStrokeWidth(mXAxis.getAxisLineWidth());
+            mAxisLinePaint.setPathEffect(mXAxis.getAxisLineDashPathEffect());
+
             c.drawLine(mViewPortHandler.contentLeft(),
                     mViewPortHandler.contentTop(), mViewPortHandler.contentRight(),
                     mViewPortHandler.contentTop(), mAxisLinePaint);
+
+            if (mXAxis.isDrawArrow()) {
+                drawArrowAndAxisLine(c, mViewPortHandler.contentRight(), mViewPortHandler.contentTop());
+            }
         }
 
         if (mXAxis.getPosition() == XAxisPosition.BOTTOM
                 || mXAxis.getPosition() == XAxisPosition.BOTTOM_INSIDE
                 || mXAxis.getPosition() == XAxisPosition.BOTH_SIDED) {
+            mAxisLinePaint.setAntiAlias(false);
+            mAxisLinePaint.setColor(mXAxis.getAxisLineColor());
+            mAxisLinePaint.setStrokeWidth(mXAxis.getAxisLineWidth());
+            mAxisLinePaint.setPathEffect(mXAxis.getAxisLineDashPathEffect());
+
             c.drawLine(mViewPortHandler.contentLeft(),
                     mViewPortHandler.contentBottom(), mViewPortHandler.contentRight(),
                     mViewPortHandler.contentBottom(), mAxisLinePaint);
+
+            if (mXAxis.isDrawArrow()) {
+                drawArrowAndAxisLine(c, mViewPortHandler.contentRight(), mViewPortHandler.contentBottom());
+            }
         }
+    }
+
+    private final Path arrowAxisPath = new Path();
+
+    private void drawArrowAndAxisLine(
+            Canvas c,
+            float axisEndPointX,
+            float axisEndPointY
+    ) {
+        mAxisLinePaint.setAntiAlias(true);
+        mAxisLinePaint.setStrokeWidth(mXAxis.getArrowLineWidth());
+
+        arrowAxisPath.reset();
+        float halfArrowXOffset = (float) Math.cos(Math.toRadians(mXAxis.getArrowDegree())) * mXAxis.getArrowLength();
+        float halfArrowYOffset = (float) Math.sin(Math.toRadians(mXAxis.getArrowDegree())) * mXAxis.getArrowLength();
+        arrowAxisPath.moveTo(axisEndPointX - halfArrowXOffset, axisEndPointY - halfArrowYOffset);
+        arrowAxisPath.lineTo(axisEndPointX, axisEndPointY);
+        arrowAxisPath.lineTo(axisEndPointX - halfArrowXOffset, axisEndPointY + halfArrowYOffset);
+        c.drawPath(arrowAxisPath, mAxisLinePaint);
     }
 
     /**
@@ -230,8 +263,10 @@ public class XAxisRenderer extends AxisRenderer {
     protected void drawLabel(Canvas c, String formattedLabel, float x, float y, MPPointF anchor, float angleDegrees) {
         Utils.drawXAxisValue(c, formattedLabel, x, y, mAxisLabelPaint, anchor, angleDegrees);
     }
+
     protected Path mRenderGridLinesPath = new Path();
     protected float[] mRenderGridLinesBuffer = new float[2];
+
     @Override
     public void renderGridLines(Canvas c) {
 
@@ -241,7 +276,7 @@ public class XAxisRenderer extends AxisRenderer {
         int clipRestoreCount = c.save();
         c.clipRect(getGridClippingRect());
 
-        if(mRenderGridLinesBuffer.length != mAxis.mEntryCount * 2){
+        if (mRenderGridLinesBuffer.length != mAxis.mEntryCount * 2) {
             mRenderGridLinesBuffer = new float[mXAxis.mEntryCount * 2];
         }
         float[] positions = mRenderGridLinesBuffer;

@@ -155,6 +155,16 @@ public abstract class AxisBase extends ComponentBase {
     private int mAxisMinLabels = 2;
     private int mAxisMaxLabels = 25;
 
+    protected boolean isDrawArrow = false;
+
+    //unit:px
+    protected float arrowLength = 20f;
+
+    protected float arrowLineWidth = 1f;
+
+    //箭头与轴的夹角(度)
+    protected float arrowDegree = 30f;
+
     /**
      * The minumum number of labels on the axis
      */
@@ -488,7 +498,9 @@ public abstract class AxisBase extends ComponentBase {
      *
      * @param enabled
      */
-    public void setDrawGridLinesBehindData(boolean enabled) { mDrawGridLinesBehindData = enabled; }
+    public void setDrawGridLinesBehindData(boolean enabled) {
+        mDrawGridLinesBehindData = enabled;
+    }
 
     public boolean isDrawGridLinesBehindDataEnabled() {
         return mDrawGridLinesBehindData;
@@ -548,7 +560,7 @@ public abstract class AxisBase extends ComponentBase {
 
         if (mAxisValueFormatter == null ||
                 (mAxisValueFormatter instanceof DefaultAxisValueFormatter &&
-                        ((DefaultAxisValueFormatter)mAxisValueFormatter).getDecimalDigits() != mDecimals))
+                        ((DefaultAxisValueFormatter) mAxisValueFormatter).getDecimalDigits() != mDecimals))
             mAxisValueFormatter = new DefaultAxisValueFormatter(mDecimals);
 
         return mAxisValueFormatter;
@@ -785,32 +797,60 @@ public abstract class AxisBase extends ComponentBase {
     /**
      * Gets extra spacing for `axisMinimum` to be added to automatically calculated `axisMinimum`
      */
-    public float getSpaceMin()
-    {
+    public float getSpaceMin() {
         return mSpaceMin;
     }
 
     /**
      * Sets extra spacing for `axisMinimum` to be added to automatically calculated `axisMinimum`
      */
-    public void setSpaceMin(float mSpaceMin)
-    {
+    public void setSpaceMin(float mSpaceMin) {
         this.mSpaceMin = mSpaceMin;
     }
 
     /**
      * Gets extra spacing for `axisMaximum` to be added to automatically calculated `axisMaximum`
      */
-    public float getSpaceMax()
-    {
+    public float getSpaceMax() {
         return mSpaceMax;
     }
 
     /**
      * Sets extra spacing for `axisMaximum` to be added to automatically calculated `axisMaximum`
      */
-    public void setSpaceMax(float mSpaceMax)
-    {
+    public void setSpaceMax(float mSpaceMax) {
         this.mSpaceMax = mSpaceMax;
+    }
+
+    public boolean isDrawArrow() {
+        return isDrawArrow;
+    }
+
+    public void setDrawArrow(boolean drawArrow) {
+        isDrawArrow = drawArrow;
+    }
+
+    public float getArrowLength() {
+        return arrowLength;
+    }
+
+    public void setArrowLength(float arrowLength) {
+        this.arrowLength = arrowLength;
+    }
+
+    public float getArrowDegree() {
+        return arrowDegree;
+    }
+
+    public void setArrowDegree(float arrowDegree) {
+        this.arrowDegree = arrowDegree;
+    }
+
+    public float getArrowLineWidth() {
+        return arrowLineWidth;
+    }
+
+    public void setArrowLineWidth(float arrowLineWidth) {
+        this.arrowLineWidth = arrowLineWidth;
     }
 }

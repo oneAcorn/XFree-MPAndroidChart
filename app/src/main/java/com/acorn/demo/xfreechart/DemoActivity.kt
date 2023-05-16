@@ -199,12 +199,14 @@ class DemoActivity : AppCompatActivity() {
             xAxis.setLabelCount(12, false)
             xAxis.isEnabled = true
             xAxis.position = XAxis.XAxisPosition.BOTTOM
+            xAxis.isDrawArrow = true
 
             axisLeft.textColor = Color.WHITE
 //            axisLeft.axisMaximum = 100f
 //            axisLeft.axisMinimum = 0f
             axisLeft.setDrawGridLines(true)
 //            axisLeft.setCenterAxisLabels(true)
+            axisLeft.isDrawArrow = true
 
             setBezierData(BezierData())
             setFixedMarkerData(FixedMarkerData())
