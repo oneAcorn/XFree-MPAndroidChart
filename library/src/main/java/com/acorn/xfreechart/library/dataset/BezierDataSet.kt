@@ -4,9 +4,7 @@ import android.graphics.Color
 import com.acorn.xfreechart.library.data.BezierEntry
 import com.github.mikephil.charting.components.YAxis.AxisDependency
 import com.github.mikephil.charting.data.Entry
-import kotlin.math.abs
-import kotlin.math.cos
-import kotlin.math.sin
+import kotlin.math.*
 
 /**
  * Created by acorn on 2023/5/11.
@@ -22,7 +20,11 @@ fun main() {
     }
 }
 
-class BezierDataSet(val color: Int, val lineWidth: Float, private val axisDependency: AxisDependency) :
+class BezierDataSet(
+    val color: Int,
+    val lineWidth: Float,
+    private val axisDependency: AxisDependency
+) :
     IBezierDataSet {
     val mEntries = mutableListOf<BezierEntry>()
     private var _xMin = -Float.MAX_VALUE
@@ -51,6 +53,48 @@ class BezierDataSet(val color: Int, val lineWidth: Float, private val axisDepend
         resetMinMax()
     }
 
+
+    //region All curve(or line)
+
+    /**
+     * Add line y = ax+b
+     *
+     * @param startX
+     * @param endX
+     * @param a
+     * @param b
+     */
+    fun addLine(
+        startX: Float,
+        endX: Float,
+        a: Float = 1f,
+        b: Float = 0f
+    ) {
+        addEquation({
+            val entries = mutableListOf<BezierEntry>()
+            val startY = a * startX + b
+            val endY = a * endX + b
+            entries.add(BezierEntry(Entry(startX, startY), null, null, Entry(endX, endY)))
+            entries
+        }) { entries ->
+            //只计算一个的情况
+            if (entries.size != 1) return@addEquation
+            val entry = entries[0]
+            _xMin = min(entry.p1.x, entry.p2.x)
+            _xMax = max(entry.p1.x, entry.p2.x)
+            _yMin = min(entry.p1.y, entry.p2.y)
+            _yMax = max(entry.p1.y, entry.p2.y)
+        }
+    }
+
+
+    /**
+     * Add cosine y = a*cos(b*x+c)+d
+     * 每次用贝塞尔画π长的线段,如-π/2 -> π/2 or π/2 -> (3/2)π
+     *
+     * @param startX 起始点,和abcd无关的值
+     * @param endX 结束点,和abcd无关的值
+     */
     fun addCosine(
         startX: Float,
         endX: Float,
@@ -59,42 +103,41 @@ class BezierDataSet(val color: Int, val lineWidth: Float, private val axisDepend
         c: Double = 0.00,
         d: Float = 0f
     ) {
-        //一个DataSet只画一个公式
-        clear()
-
-        val startLeftPeakX = findCosinePeakX(startX, b = b, c = c)
-        //每次绘制多长(如果是sin(x),则每次绘制π长)
-        val drawSegmentLength = Math.PI / abs(b)
-        //多加一些偏移,防止画少了
-        val endLeftPeakPosition = findCosinePeakX(endX, b = b, c = c) + drawSegmentLength / 2.00
+        addEquation({
+            val startLeftPeakX = findCosinePeakX(startX, b = b, c = c)
+            //每次绘制多长(如果是sin(x),则每次绘制π长)
+            val drawSegmentLength = Math.PI / abs(b)
+            //多加一些偏移,防止画少了
+            val endLeftPeakPosition = findCosinePeakX(endX, b = b, c = c) + drawSegmentLength / 2.00
 //        val endRightPeakPosition = findSinePeakN(endX, false) * Math.PI
-        var curDrawPosition = startLeftPeakX
-        val entries = mutableListOf<BezierEntry>()
-        while (curDrawPosition <= endLeftPeakPosition) {
-            //起始点
-            val leftX = curDrawPosition
-            curDrawPosition += drawSegmentLength
-            //结束点
-            val rightX = curDrawPosition
-            //控制点1的x轴
-            val controlX1 = leftX + (rightX - leftX) * BEZIER_SINE_LEFT_CONTROL_K
-            //控制点2的x轴
-            val controlX2 = leftX + (rightX - leftX) * BEZIER_SINE_RIGHT_CONTROL_K
-            //结束点
-            val leftY = a * cos(b * leftX + c).toFloat() + d
-            val rightY = a * cos(b * rightX + c).toFloat() + d
-            val entry = BezierEntry(
-                Entry(leftX.toFloat(), leftY),
-                Entry(controlX1.toFloat(), leftY),
-                Entry(controlX2.toFloat(), rightY),
-                Entry(rightX.toFloat(), rightY)
-            )
+            var curDrawPosition = startLeftPeakX
+            val entries = mutableListOf<BezierEntry>()
+            while (curDrawPosition <= endLeftPeakPosition) {
+                //起始点
+                val leftX = curDrawPosition
+                curDrawPosition += drawSegmentLength
+                //结束点
+                val rightX = curDrawPosition
+                //控制点1的x轴
+                val controlX1 = leftX + (rightX - leftX) * BEZIER_SINE_LEFT_CONTROL_K
+                //控制点2的x轴
+                val controlX2 = leftX + (rightX - leftX) * BEZIER_SINE_RIGHT_CONTROL_K
+                //结束点
+                val leftY = a * cos(b * leftX + c).toFloat() + d
+                val rightY = a * cos(b * rightX + c).toFloat() + d
+                val entry = BezierEntry(
+                    Entry(leftX.toFloat(), leftY),
+                    Entry(controlX1.toFloat(), leftY),
+                    Entry(controlX2.toFloat(), rightY),
+                    Entry(rightX.toFloat(), rightY)
+                )
 //            Log.i("acornTag", "addSine: $entry")
-            entries.add(entry)
+                entries.add(entry)
+            }
+            entries
+        }) {
+            calcSinCosMinMax(it, a, d)
         }
-        addEntries(entries)
-
-        calcSinCosMinMax(a, d)
     }
 
     /**
@@ -112,54 +155,64 @@ class BezierDataSet(val color: Int, val lineWidth: Float, private val axisDepend
         c: Double = 0.00,
         d: Float = 0f
     ) {
+        addEquation({
+            val startLeftPeakX = findSinePeakX(startX, b = b, c = c)
+            //每次绘制多长(如果是sin(x),则每次绘制π长)
+            val drawSegmentLength = Math.PI / abs(b)
+            //多加一些偏移,防止画少了
+            val endLeftPeakPosition = findSinePeakX(endX, b = b, c = c) + drawSegmentLength / 2.00
+//        val endRightPeakPosition = findSinePeakN(endX, false) * Math.PI
+            var curDrawPosition = startLeftPeakX
+            val entries = mutableListOf<BezierEntry>()
+            while (curDrawPosition <= endLeftPeakPosition) {
+                //起始点
+                val leftX = curDrawPosition
+                curDrawPosition += drawSegmentLength
+                //结束点
+                val rightX = curDrawPosition
+                //控制点1的x轴
+                val controlX1 = leftX + (rightX - leftX) * BEZIER_SINE_LEFT_CONTROL_K
+                //控制点2的x轴
+                val controlX2 = leftX + (rightX - leftX) * BEZIER_SINE_RIGHT_CONTROL_K
+                //结束点
+                val leftY = a * sin(b * leftX + c).toFloat() + d
+                val rightY = a * sin(b * rightX + c).toFloat() + d
+                val entry = BezierEntry(
+                    Entry(leftX.toFloat(), leftY),
+                    Entry(controlX1.toFloat(), leftY),
+                    Entry(controlX2.toFloat(), rightY),
+                    Entry(rightX.toFloat(), rightY)
+                )
+//            Log.i("acornTag", "addSine: $entry")
+                entries.add(entry)
+            }
+            entries
+        }) {
+            calcSinCosMinMax(it, a, d)
+        }
+    }
+    //endregion
+
+    private fun addEquation(
+        generateEntries: () -> List<BezierEntry>,
+        calcEquationMinMax: (entries: List<BezierEntry>) -> Unit
+    ) {
         //一个DataSet只画一个公式
         clear()
-
-        val startLeftPeakX = findSinePeakX(startX, b = b, c = c)
-        //每次绘制多长(如果是sin(x),则每次绘制π长)
-        val drawSegmentLength = Math.PI / abs(b)
-        //多加一些偏移,防止画少了
-        val endLeftPeakPosition = findSinePeakX(endX, b = b, c = c) + drawSegmentLength / 2.00
-//        val endRightPeakPosition = findSinePeakN(endX, false) * Math.PI
-        var curDrawPosition = startLeftPeakX
-        val entries = mutableListOf<BezierEntry>()
-        while (curDrawPosition <= endLeftPeakPosition) {
-            //起始点
-            val leftX = curDrawPosition
-            curDrawPosition += drawSegmentLength
-            //结束点
-            val rightX = curDrawPosition
-            //控制点1的x轴
-            val controlX1 = leftX + (rightX - leftX) * BEZIER_SINE_LEFT_CONTROL_K
-            //控制点2的x轴
-            val controlX2 = leftX + (rightX - leftX) * BEZIER_SINE_RIGHT_CONTROL_K
-            //结束点
-            val leftY = a * sin(b * leftX + c).toFloat() + d
-            val rightY = a * sin(b * rightX + c).toFloat() + d
-            val entry = BezierEntry(
-                Entry(leftX.toFloat(), leftY),
-                Entry(controlX1.toFloat(), leftY),
-                Entry(controlX2.toFloat(), rightY),
-                Entry(rightX.toFloat(), rightY)
-            )
-//            Log.i("acornTag", "addSine: $entry")
-            entries.add(entry)
-        }
+        val entries = generateEntries()
         addEntries(entries)
-
-        calcSinCosMinMax(a, d)
+        resetMinMax()
+        calcEquationMinMax(entries)
     }
 
-    private fun calcSinCosMinMax(a: Float, d: Float) {
-        val entries = mEntries
-        if (entries.isNotEmpty()) {
-            val startEntry = entries[0]
-            val endEntry = entries[entries.size - 1]
-            _xMin = startEntry.p1.x
-            _xMax = endEntry.p2.x
-            _yMin = d - abs(a)
-            _yMax = d + abs(a)
-        }
+    private fun calcSinCosMinMax(entries: List<BezierEntry>, a: Float, d: Float) {
+        if (entries.isEmpty()) return
+        val startEntry = entries[0]
+        val endEntry = entries[entries.size - 1]
+        _xMin = startEntry.p1.x
+        _xMax = endEntry.p2.x
+        _yMin = d - abs(a)
+        _yMax = d + abs(a)
     }
 
     /**
@@ -246,5 +299,5 @@ class BezierDataSet(val color: Int, val lineWidth: Float, private val axisDepend
     override fun getYMin(): Float = _yMin
 
     override fun getYMax(): Float = _yMax
-    override fun getAxisDependency(): AxisDependency =axisDependency
+    override fun getAxisDependency(): AxisDependency = axisDependency
 }

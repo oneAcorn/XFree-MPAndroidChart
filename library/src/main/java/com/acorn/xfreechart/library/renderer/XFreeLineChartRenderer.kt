@@ -160,8 +160,12 @@ class XFreeLineChartRenderer(
 
             p1Arr[0] = entry.p1.x
             p1Arr[1] = entry.p1.y
-            h1Arr[0] = entry.h1.x
-            h1Arr[1] = entry.h1.y
+            val h1 = entry.h1
+            if (h1 != null) {
+                h1Arr[0] = entry.h1.x
+                h1Arr[1] = entry.h1.y
+                trans.pointValuesToPixel(h1Arr)
+            }
             val h2 = entry.h2
             if (h2 != null) {
                 h2Arr[0] = h2.x
@@ -171,17 +175,19 @@ class XFreeLineChartRenderer(
             p2Arr[0] = entry.p2.x
             p2Arr[1] = entry.p2.y
             trans.pointValuesToPixel(p1Arr)
-            trans.pointValuesToPixel(h1Arr)
             trans.pointValuesToPixel(p2Arr)
 
-            if (!mViewPortHandler.isInBoundsLeft(p2Arr[0]) ||
-                !mViewPortHandler.isInBoundsRight(p1Arr[0])
-            ) { //屏幕外的不画
+            if (h1 != null &&
+                (!mViewPortHandler.isInBoundsLeft(p2Arr[0]) ||
+                        !mViewPortHandler.isInBoundsRight(p1Arr[0]))
+            ) { //屏幕外的不画(直线无论如何都画)
                 continue
             }
 
             mBezierPath.moveTo(p1Arr[0], p1Arr[1])
-            if (h2 == null) { //二阶贝塞尔
+            if (h1 == null) { //直线
+                mBezierPath.lineTo(p2Arr[0], p2Arr[1])
+            } else if (h2 == null) { //二阶贝塞尔
                 mBezierPath.quadTo(h1Arr[0], h1Arr[1], p2Arr[0], p2Arr[1])
             } else { //三阶贝塞尔
                 mBezierPath.cubicTo(h1Arr[0], h1Arr[1], h2Arr[0], h2Arr[1], p2Arr[0], p2Arr[1])
