@@ -1,6 +1,7 @@
 package com.acorn.xfreechart.library.renderer
 
 import android.graphics.*
+import android.util.Log
 import com.acorn.xfreechart.library.data.FixedMarkerEntry
 import com.acorn.xfreechart.library.dataprovider.XFreeDataProvider
 import com.acorn.xfreechart.library.dataset.BezierDataSet
@@ -140,7 +141,11 @@ class XFreeLineChartRenderer(
         val bezierDataSets = bezierData.getDataSets()
         if (bezierDataSets.isEmpty()) return
         for (set in bezierDataSets) {
-            drawBezierDataSet(c, set)
+            if (set.isSineOrCosine && set.mEntries.size >= 3) {
+                drawSinCos(c, set)
+            } else {
+                drawBezierDataSet(c, set)
+            }
         }
     }
 
@@ -194,6 +199,97 @@ class XFreeLineChartRenderer(
             }
         }
         c.drawPath(mBezierPath, mRenderPaint)
+    }
+
+    /**
+     * 针对Sine,Cosine的优化,虽然只通过贝塞尔就能画,但是性能堪忧
+     *
+     *
+     * @param c
+     * @param dataSet
+     */
+    private fun drawSinCos(c: Canvas, dataSet: BezierDataSet) {
+        val bezierList = dataSet.mEntries
+        //至少需要一个波长(每次画半个波长)+结束位置
+        if (bezierList.size < 3) return
+        mRenderPaint.style = Paint.Style.STROKE
+        mRenderPaint.color = dataSet.color
+        mRenderPaint.strokeWidth = dataSet.lineWidth
+        mBezierPath.reset()
+        val trans = mChart.getTransformer(dataSet.getAxisDependency())
+        val p1Arr = FloatArray(2) //起始点
+        val h1Arr = FloatArray(2) //控制点1
+        val h2Arr = FloatArray(2) //控制点2
+        val p2Arr = FloatArray(2) //结束点
+
+        var drawStartX = 0f
+        var drawEndX = 0f
+        //先绘制一个波长
+        for (i in 0..1) {
+            val entry = bezierList[i]
+            p1Arr[0] = entry.p1.x
+            p1Arr[1] = entry.p1.y
+            val h1 = entry.h1
+            if (h1 != null) {
+                h1Arr[0] = entry.h1.x
+                h1Arr[1] = entry.h1.y
+                trans.pointValuesToPixel(h1Arr)
+            }
+            val h2 = entry.h2
+            if (h2 != null) {
+                h2Arr[0] = h2.x
+                h2Arr[1] = h2.y
+                trans.pointValuesToPixel(h2Arr)
+            }
+            p2Arr[0] = entry.p2.x
+            p2Arr[1] = entry.p2.y
+            trans.pointValuesToPixel(p1Arr)
+            trans.pointValuesToPixel(p2Arr)
+
+            if (i == 0) drawStartX = p1Arr[0]
+            if (i == 1) drawEndX = p2Arr[0]
+
+            mBezierPath.moveTo(p1Arr[0], p1Arr[1])
+            if (h1 == null) { //直线
+                mBezierPath.lineTo(p2Arr[0], p2Arr[1])
+            } else if (h2 == null) { //二阶贝塞尔
+                mBezierPath.quadTo(h1Arr[0], h1Arr[1], p2Arr[0], p2Arr[1])
+            } else { //三阶贝塞尔
+                mBezierPath.cubicTo(h1Arr[0], h1Arr[1], h2Arr[0], h2Arr[1], p2Arr[0], p2Arr[1])
+            }
+        }
+        c.drawPath(mBezierPath, mRenderPaint)
+
+        val finalEntry = bezierList.last()
+        val restoreCount = c.save()
+        p2Arr[0] = finalEntry.p2.x
+        p2Arr[1] = finalEntry.p2.y
+        trans.pointValuesToPixel(p2Arr)
+        //最终绘制的点的x坐标
+        val finalX = p2Arr[0]
+        //canvas每次移动的距离(=波长)
+        val transX = drawEndX - drawStartX
+//        Log.i(
+//            TAG,
+//            "drawSinCos: finalX:$finalX,transX:$transX,finalEntryX:${finalEntry.p2.x},${drawStartX},${drawEndX}"
+//        )
+        if (transX <= 0) return
+
+        val drawTimes = ((finalX - drawStartX) / transX + 0.5f).toInt()
+        //排除掉第一个波长,后续都是从第一个波长复制出来的
+        for (i in 1..drawTimes) {
+            c.translate(transX, 0f)
+            val curDrawEndPos = drawStartX + transX * (i + 1)
+            if (curDrawEndPos < 0) continue
+            val curDrawStartPos = drawStartX + transX * i
+            if (!mViewPortHandler.isInBoundsLeft(curDrawEndPos) ||
+                !mViewPortHandler.isInBoundsRight(curDrawStartPos)
+            ) {
+                continue
+            }
+            c.drawPath(mBezierPath, mRenderPaint)
+        }
+        c.restoreToCount(restoreCount)
     }
 
     private fun drawMarkers(c: Canvas?) {

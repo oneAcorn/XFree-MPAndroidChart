@@ -24,9 +24,12 @@ class BezierDataSet(
     val color: Int,
     val lineWidth: Float,
     private val axisDependency: AxisDependency
-) :
-    IBezierDataSet {
+) : IBezierDataSet {
     val mEntries = mutableListOf<BezierEntry>()
+
+    //针对sine,cosine的优化,此曲线在一个波长后无限重复,sin(bx)|cos(bx)波长2π/b.
+    //此种方法仅需要3个点(起始点到一个波长(每个entry半个波长,所以是2个点),和结束点)
+    var isSineOrCosine = false
     private var _xMin = -Float.MAX_VALUE
     private var _xMax = Float.MAX_VALUE
     private var _yMin = -Float.MAX_VALUE
@@ -103,21 +106,23 @@ class BezierDataSet(
         c: Double = 0.00,
         d: Float = 0f
     ) {
+        isSineOrCosine = true
         addEquation({
             val startLeftPeakX = findCosinePeakX(startX, b = b, c = c)
             //每次绘制多长(如果是sin(x),则每次绘制π长)
             val drawSegmentLength = Math.PI / abs(b)
             //多加一些偏移,防止画少了
             val endLeftPeakPosition = findCosinePeakX(endX, b = b, c = c) + drawSegmentLength / 2.00
-//        val endRightPeakPosition = findSinePeakN(endX, false) * Math.PI
-            var curDrawPosition = startLeftPeakX
+
             val entries = mutableListOf<BezierEntry>()
-            while (curDrawPosition <= endLeftPeakPosition) {
+            //最后点的index
+            val lastIndex = ((endLeftPeakPosition - startLeftPeakX) / drawSegmentLength).toInt()
+            val indexs = listOf(0, 1, lastIndex)
+            for (index in indexs) {
                 //起始点
-                val leftX = curDrawPosition
-                curDrawPosition += drawSegmentLength
+                val leftX = startLeftPeakX + drawSegmentLength * index
                 //结束点
-                val rightX = curDrawPosition
+                val rightX = startLeftPeakX + drawSegmentLength * (index + 1)
                 //控制点1的x轴
                 val controlX1 = leftX + (rightX - leftX) * BEZIER_SINE_LEFT_CONTROL_K
                 //控制点2的x轴
@@ -131,7 +136,6 @@ class BezierDataSet(
                     Entry(controlX2.toFloat(), rightY),
                     Entry(rightX.toFloat(), rightY)
                 )
-//            Log.i("acornTag", "addSine: $entry")
                 entries.add(entry)
             }
             entries
@@ -155,21 +159,23 @@ class BezierDataSet(
         c: Double = 0.00,
         d: Float = 0f
     ) {
+        isSineOrCosine = true
         addEquation({
             val startLeftPeakX = findSinePeakX(startX, b = b, c = c)
             //每次绘制多长(如果是sin(x),则每次绘制π长)
             val drawSegmentLength = Math.PI / abs(b)
             //多加一些偏移,防止画少了
             val endLeftPeakPosition = findSinePeakX(endX, b = b, c = c) + drawSegmentLength / 2.00
-//        val endRightPeakPosition = findSinePeakN(endX, false) * Math.PI
-            var curDrawPosition = startLeftPeakX
+
             val entries = mutableListOf<BezierEntry>()
-            while (curDrawPosition <= endLeftPeakPosition) {
+            //最后点的index
+            val lastIndex = ((endLeftPeakPosition - startLeftPeakX) / drawSegmentLength).toInt()
+            val indexs = listOf(0, 1, lastIndex)
+            for (index in indexs) {
                 //起始点
-                val leftX = curDrawPosition
-                curDrawPosition += drawSegmentLength
+                val leftX = startLeftPeakX + drawSegmentLength * index
                 //结束点
-                val rightX = curDrawPosition
+                val rightX = startLeftPeakX + drawSegmentLength * (index + 1)
                 //控制点1的x轴
                 val controlX1 = leftX + (rightX - leftX) * BEZIER_SINE_LEFT_CONTROL_K
                 //控制点2的x轴

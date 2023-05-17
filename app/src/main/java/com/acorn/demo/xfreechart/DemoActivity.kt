@@ -171,7 +171,7 @@ class DemoActivity : AppCompatActivity() {
             setPinchZoom(false)
             setBackgroundColor(Color.LTGRAY)
 
-//            val data = LineData()
+//            val data = XFreeLineData()
 //            data.setValueTextColor(Color.WHITE)
 //            // add empty data
 //            this.data = data
@@ -355,7 +355,7 @@ class DemoActivity : AppCompatActivity() {
 
         //添加Sine公式绘制
         prepareBezierDataSetAndInvalidate {
-            addSine(startX - 20, endX + 20, a.toFloat(), b, c, d.toFloat())
+            addSine(startX, endX, a.toFloat(), b, c, d.toFloat())
             binding.lineChart.lineData.notifyDataChanged()
         }
     }
@@ -409,11 +409,11 @@ class DemoActivity : AppCompatActivity() {
                 testBezierData()
             }
             R.id.test_sine -> {
-                testSineData(-10f, 10f, 2000, a = 4.00, b = -2.00, c = 1.00, d = 3.00)
+                testSineData(-30f, 30f, 2000, a = 4.00, b = -2.00, c = 1.00, d = 3.00)
 //                testSineData(-200f, 200f, 2000, a = -4.00, b = -2.00, c = -1.00, d = -3.00)
             }
             R.id.test_cosine -> {
-                testCosineData(-10f, 10f, 2000, a = 4.00, b = -2.00, c = 1.00, d = 3.00)
+                testCosineData(-30f, 30f, 2000, a = 4.00, b = -2.00, c = 1.00, d = 3.00)
             }
             R.id.test_marker -> {
                 testMarker()
