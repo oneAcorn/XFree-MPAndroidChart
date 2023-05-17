@@ -18,12 +18,17 @@ fun main() {
 //    println("left:${findSineLeftPeak2(2f)}")
     val test = BezierDataSet(Color.GREEN, 2f, AxisDependency.LEFT)
     for (i in -20..20 step 2) {
-        println("$i -> ${test.findCosinePeakX(i.toFloat(), true, -2.00, -3.00)}")
+//        println("$i -> ${test.findCosinePeakX(i.toFloat(), true, -2.00, -3.00)}")
     }
 }
 
-class BezierDataSet(val color: Int, val lineWidth: Float, val axisDependency: AxisDependency) {
+class BezierDataSet(val color: Int, val lineWidth: Float, private val axisDependency: AxisDependency) :
+    IBezierDataSet {
     val mEntries = mutableListOf<BezierEntry>()
+    private var _xMin = -Float.MAX_VALUE
+    private var _xMax = Float.MAX_VALUE
+    private var _yMin = -Float.MAX_VALUE
+    private var _yMax = Float.MAX_VALUE
 
     companion object {
         private const val HALF_PI: Double = Math.PI / 2.00
@@ -33,16 +38,17 @@ class BezierDataSet(val color: Int, val lineWidth: Float, val axisDependency: Ax
         private const val BEZIER_SINE_RIGHT_CONTROL_K = 1 - BEZIER_SINE_LEFT_CONTROL_K
     }
 
-    fun addEntry(entry: BezierEntry) {
+    private fun addEntry(entry: BezierEntry) {
         mEntries.add(entry)
     }
 
-    fun removeEntry(entry: BezierEntry) {
-        mEntries.remove(entry)
+    private fun addEntries(entries: List<BezierEntry>) {
+        mEntries.addAll(entries)
     }
 
-    fun addEntries(entries: List<BezierEntry>) {
-        mEntries.addAll(entries)
+    fun clear() {
+        mEntries.clear()
+        resetMinMax()
     }
 
     fun addCosine(
@@ -53,6 +59,9 @@ class BezierDataSet(val color: Int, val lineWidth: Float, val axisDependency: Ax
         c: Double = 0.00,
         d: Float = 0f
     ) {
+        //一个DataSet只画一个公式
+        clear()
+
         val startLeftPeakX = findCosinePeakX(startX, b = b, c = c)
         //每次绘制多长(如果是sin(x),则每次绘制π长)
         val drawSegmentLength = Math.PI / abs(b)
@@ -84,6 +93,8 @@ class BezierDataSet(val color: Int, val lineWidth: Float, val axisDependency: Ax
             entries.add(entry)
         }
         addEntries(entries)
+
+        calcSinCosMinMax(a, d)
     }
 
     /**
@@ -101,6 +112,9 @@ class BezierDataSet(val color: Int, val lineWidth: Float, val axisDependency: Ax
         c: Double = 0.00,
         d: Float = 0f
     ) {
+        //一个DataSet只画一个公式
+        clear()
+
         val startLeftPeakX = findSinePeakX(startX, b = b, c = c)
         //每次绘制多长(如果是sin(x),则每次绘制π长)
         val drawSegmentLength = Math.PI / abs(b)
@@ -132,6 +146,20 @@ class BezierDataSet(val color: Int, val lineWidth: Float, val axisDependency: Ax
             entries.add(entry)
         }
         addEntries(entries)
+
+        calcSinCosMinMax(a, d)
+    }
+
+    private fun calcSinCosMinMax(a: Float, d: Float) {
+        val entries = mEntries
+        if (entries.isNotEmpty()) {
+            val startEntry = entries[0]
+            val endEntry = entries[entries.size - 1]
+            _xMin = startEntry.p1.x
+            _xMax = endEntry.p2.x
+            _yMin = d - abs(a)
+            _yMax = d + abs(a)
+        }
     }
 
     /**
@@ -143,7 +171,7 @@ class BezierDataSet(val color: Int, val lineWidth: Float, val axisDependency: Ax
      * @param isLeft 左或右
      * @return
      */
-    fun findSinePeakX(
+    private fun findSinePeakX(
         x: Float,
         isLeft: Boolean = true,
         b: Double = 1.00,
@@ -176,7 +204,7 @@ class BezierDataSet(val color: Int, val lineWidth: Float, val axisDependency: Ax
      * @param isLeft 左或右
      * @return
      */
-    fun findCosinePeakX(
+    private fun findCosinePeakX(
         x: Float,
         isLeft: Boolean = true,
         b: Double = 1.00,
@@ -199,4 +227,24 @@ class BezierDataSet(val color: Int, val lineWidth: Float, val axisDependency: Ax
         val minus = if (n > 0.00) 0 else -1
         return (n.toInt() + minus) * drawSegmentLength - c / b
     }
+
+    private fun resetMinMax() {
+        _xMin = -Float.MAX_VALUE
+        _xMax = Float.MAX_VALUE
+        _yMin = -Float.MAX_VALUE
+        _yMax = Float.MAX_VALUE
+    }
+
+    override fun calcMinMax() {
+
+    }
+
+    override fun getXMin(): Float = _xMin
+
+    override fun getXMax(): Float = _xMax
+
+    override fun getYMin(): Float = _yMin
+
+    override fun getYMax(): Float = _yMax
+    override fun getAxisDependency(): AxisDependency =axisDependency
 }

@@ -151,7 +151,7 @@ class XFreeLineChartRenderer(
         mRenderPaint.color = dataSet.color
         mRenderPaint.strokeWidth = dataSet.lineWidth
         mBezierPath.reset()
-        val trans = mChart.getTransformer(dataSet.axisDependency)
+        val trans = mChart.getTransformer(dataSet.getAxisDependency())
         val p1Arr = FloatArray(2) //起始点
         val h1Arr = FloatArray(2) //控制点1
         val h2Arr = FloatArray(2) //控制点2

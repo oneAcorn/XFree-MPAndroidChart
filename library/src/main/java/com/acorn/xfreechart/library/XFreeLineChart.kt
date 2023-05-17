@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.view.ViewConfiguration
 import com.acorn.xfreechart.library.data.BezierData
 import com.acorn.xfreechart.library.data.FixedMarkerData
+import com.acorn.xfreechart.library.data.XFreeLineData
 import com.acorn.xfreechart.library.dataprovider.XFreeDataProvider
 import com.acorn.xfreechart.library.renderer.XFreeLineChartRenderer
 import com.github.mikephil.charting.charts.BarLineChartBase
@@ -16,9 +17,7 @@ import com.github.mikephil.charting.selectarea.SelectAreaHelper
  * x轴不必递增的LineChart
  * Created by acorn on 2023/4/7.
  */
-class XFreeLineChart : BarLineChartBase<LineData>, XFreeDataProvider {
-    private var _bezierData: BezierData? = null
-    private var _fixedMarkerData: FixedMarkerData? = null
+class XFreeLineChart : BarLineChartBase<XFreeLineData>, XFreeDataProvider {
 
     constructor(context: Context?, attrs: AttributeSet?, defStyle: Int) : super(
         context,
@@ -36,17 +35,9 @@ class XFreeLineChart : BarLineChartBase<LineData>, XFreeDataProvider {
             SelectAreaHelper(this, ViewConfiguration.get(context).scaledTouchSlop, false, this)
     }
 
-    override fun getBezierData(): BezierData? = _bezierData
+    override fun getBezierData(): BezierData = mData.bezierData
 
-    fun setBezierData(bezierData: BezierData?) {
-        this._bezierData = bezierData
-    }
-
-    override fun getFixedMarkerData(): FixedMarkerData? = _fixedMarkerData
-
-    fun setFixedMarkerData(markerData: FixedMarkerData?) {
-        this._fixedMarkerData = markerData
-    }
+    override fun getFixedMarkerData(): FixedMarkerData = mData.fixedMarkerData
 
     override fun getLineData(): LineData {
         return mData

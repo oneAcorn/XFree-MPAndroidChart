@@ -9,10 +9,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.acorn.demo.xfreechart.databinding.ActivityDemoBinding
 import com.acorn.xfreechart.library.XFreeLineChart
-import com.acorn.xfreechart.library.data.BezierData
-import com.acorn.xfreechart.library.data.BezierEntry
-import com.acorn.xfreechart.library.data.FixedMarkerData
-import com.acorn.xfreechart.library.data.FixedMarkerEntry
+import com.acorn.xfreechart.library.data.*
 import com.acorn.xfreechart.library.dataset.BezierDataSet
 import com.acorn.xfreechart.library.dataset.XFreeLineDataSet
 import com.acorn.xfreechart.library.highlight.XFreeHighlighter
@@ -90,7 +87,7 @@ class DemoActivity : AppCompatActivity() {
     private fun addEntry(entry: Entry) {
         var lineData = binding.lineChart.data
         if (lineData == null) {
-            val data = LineData()
+            val data = XFreeLineData()
             data.setValueTextColor(Color.WHITE)
             // add empty data
             binding.lineChart.data = data
@@ -118,16 +115,16 @@ class DemoActivity : AppCompatActivity() {
 //        lineChart.invalidate()
     }
 
-    private fun addBezierEntry(bezierEntry: BezierEntry) {
-        val bezierData = binding.lineChart.getBezierData() ?: return
-        var dataSet = bezierData.getDataSet(0)
-        if (dataSet == null) {
-            dataSet = createBezierSet()
-            bezierData.addDataSet(dataSet)
-        }
-        dataSet.addEntry(bezierEntry)
-        binding.lineChart.invalidate()
-    }
+//    private fun addBezierEntry(bezierEntry: BezierEntry) {
+//        val bezierData = binding.lineChart.getBezierData() ?: return
+//        var dataSet = bezierData.getDataSet(0)
+//        if (dataSet == null) {
+//            dataSet = createBezierSet()
+//            bezierData.addDataSet(dataSet)
+//        }
+//        dataSet.addEntry(bezierEntry)
+//        binding.lineChart.invalidate()
+//    }
 
     private fun prepareBezierDataSetAndInvalidate(callback: BezierDataSet.() -> Unit) {
         val bezierData = binding.lineChart.getBezierData() ?: return
@@ -138,6 +135,7 @@ class DemoActivity : AppCompatActivity() {
         }
 //        dataSet.addSine(startX, endX, a.toFloat(), b, c, d.toFloat())
         callback.invoke(dataSet)
+        binding.lineChart.notifyDataSetChanged()
         binding.lineChart.invalidate()
     }
 
@@ -207,9 +205,6 @@ class DemoActivity : AppCompatActivity() {
             axisLeft.setDrawGridLines(true)
 //            axisLeft.setCenterAxisLabels(true)
             axisLeft.isDrawArrow = true
-
-            setBezierData(BezierData())
-            setFixedMarkerData(FixedMarkerData())
 
             axisRight.isEnabled = false
 
@@ -360,7 +355,8 @@ class DemoActivity : AppCompatActivity() {
 
         //添加Sine公式绘制
         prepareBezierDataSetAndInvalidate {
-            addSine(startX, endX, a.toFloat(), b, c, d.toFloat())
+            addSine(startX - 20, endX + 20, a.toFloat(), b, c, d.toFloat())
+            binding.lineChart.lineData.notifyDataChanged()
         }
     }
 
