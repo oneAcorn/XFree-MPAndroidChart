@@ -357,6 +357,11 @@ public class LineDataSet extends LineRadarDataSet<Entry> implements ILineDataSet
         return id;
     }
 
+    @Override
+    public boolean isShowLegend() {
+        return true;
+    }
+
     public void setId(String id) {
         this.id = id;
     }

@@ -102,4 +102,6 @@ public interface ILineDataSet extends ILineRadarDataSet<Entry> {
     IFillFormatter getFillFormatter();
 
     String getId();
+
+    boolean isShowLegend();
 }

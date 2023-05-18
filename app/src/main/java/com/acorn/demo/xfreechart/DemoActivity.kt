@@ -156,6 +156,7 @@ class DemoActivity : AppCompatActivity() {
         set.highLightColor = Color.rgb(244, 117, 117)
         set.valueTextColor = Color.WHITE
         set.valueTextSize = 9f
+        set.showLegend(false)
         set.setDrawValues(false)
         return set
     }

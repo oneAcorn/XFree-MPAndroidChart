@@ -13,14 +13,16 @@ import kotlin.math.abs
 class XFreeLineDataSet<T : LineDataProvider>(
     private val mChart: T,
     yVals: MutableList<Entry>?,
-    lable: String
+    lable: String?
 ) : LineDataSet(yVals, lable) {
     /**
      * The threshold for displaying points. When the number of points on the screen exceeds this value, the points will not show.
      */
     var mPointVisibleThreshold = -1
+
     //是否显示线
     var isShowLine = true
+    private var _isShowLegend = true
 
     override fun getEntryForXValue(xValue: Float, closestToY: Float, rounding: Rounding): Entry? {
 //        logI("XFreeLineDataSet $xValue,$closestToY,$rounding")
@@ -101,5 +103,13 @@ class XFreeLineDataSet<T : LineDataProvider>(
             e.printStackTrace()
         }
         return targetEntries
+    }
+
+    override fun isShowLegend(): Boolean {
+        return _isShowLegend
+    }
+
+    fun showLegend(isShowLegend: Boolean) {
+        _isShowLegend = isShowLegend
     }
 }
