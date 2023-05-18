@@ -79,7 +79,7 @@ class XFreeLineChartRenderer(
         drawBitmap.eraseColor(Color.TRANSPARENT)
 
         for (set in mChart.lineData.dataSets) {
-            if (!set.isVisible) continue
+            if (!set.isVisible || (set as? XFreeLineDataSet<*>)?.isShowLine == false) continue
             drawDataSet(c, set)
         }
         c.drawBitmap(drawBitmap, 0f, 0f, mRenderPaint)
@@ -363,9 +363,10 @@ class XFreeLineChartRenderer(
                 imageCache.fill(dataSet, drawCircleHole, drawTransparentCircleHole)
             }
 
-            val pointsLimitAmount = (dataSet as? XFreeLineDataSet<*>)?.mPointVisibleThreshold ?: -1
+            val xFreeDataSet = dataSet as? XFreeLineDataSet<*>
+            val pointsLimitAmount = xFreeDataSet?.mPointVisibleThreshold ?: -1
             //是否限制显示点的数量
-            val isLimitPointAmount = pointsLimitAmount > 0
+            val isLimitPointAmount = pointsLimitAmount > 0 && xFreeDataSet?.isShowLine != false
             if (isLimitPointAmount) {
                 drawCirclesToCanvasByThreshold(
                     pointsLimitAmount,

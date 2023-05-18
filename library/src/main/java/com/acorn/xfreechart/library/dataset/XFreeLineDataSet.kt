@@ -19,6 +19,8 @@ class XFreeLineDataSet<T : LineDataProvider>(
      * The threshold for displaying points. When the number of points on the screen exceeds this value, the points will not show.
      */
     var mPointVisibleThreshold = -1
+    //是否显示线
+    var isShowLine = true
 
     override fun getEntryForXValue(xValue: Float, closestToY: Float, rounding: Rounding): Entry? {
 //        logI("XFreeLineDataSet $xValue,$closestToY,$rounding")
