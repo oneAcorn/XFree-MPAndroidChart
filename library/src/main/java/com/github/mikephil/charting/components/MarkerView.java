@@ -2,6 +2,7 @@ package com.github.mikephil.charting.components;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -25,6 +26,7 @@ public class MarkerView extends RelativeLayout implements IMarker {
     private MPPointF mOffset = new MPPointF();
     private MPPointF mOffset2 = new MPPointF();
     private WeakReference<Chart> mWeakChart;
+    private final Rect markerRect = new Rect();
 
     /**
      * Constructor. Sets up the MarkerView with a custom layout resource.
@@ -92,13 +94,13 @@ public class MarkerView extends RelativeLayout implements IMarker {
         float height = getHeight();
 
         if (posX + mOffset2.x < 0) {
-            mOffset2.x = - posX;
+            mOffset2.x = -posX;
         } else if (chart != null && posX + width + mOffset2.x > chart.getWidth()) {
             mOffset2.x = chart.getWidth() - posX - width;
         }
 
         if (posY + mOffset2.y < 0) {
-            mOffset2.y = - posY;
+            mOffset2.y = -posY;
         } else if (chart != null && posY + height + mOffset2.y > chart.getHeight()) {
             mOffset2.y = chart.getHeight() - posY - height;
         }
@@ -112,7 +114,6 @@ public class MarkerView extends RelativeLayout implements IMarker {
         measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
                 MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
         layout(0, 0, getMeasuredWidth(), getMeasuredHeight());
-
     }
 
     @Override
@@ -121,9 +122,18 @@ public class MarkerView extends RelativeLayout implements IMarker {
         MPPointF offset = getOffsetForDrawingAtPoint(posX, posY);
 
         int saveId = canvas.save();
+        float transX = posX + offset.x;
+        float transY = posY + offset.y;
         // translate to the correct position and draw
-        canvas.translate(posX + offset.x, posY + offset.y);
+        canvas.translate(transX, transY);
         draw(canvas);
         canvas.restoreToCount(saveId);
+        getDrawingRect(markerRect);
+        markerRect.offset((int) transX, (int) transY);
+    }
+
+    @Override
+    public Rect getMarkerRect() {
+        return markerRect;
     }
 }

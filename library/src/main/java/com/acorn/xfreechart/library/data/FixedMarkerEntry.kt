@@ -1,5 +1,6 @@
 package com.acorn.xfreechart.library.data
 
+import android.graphics.Rect
 import com.github.mikephil.charting.components.YAxis.AxisDependency
 import com.github.mikephil.charting.data.Entry
 
@@ -13,4 +14,6 @@ data class FixedMarkerEntry(
     val axisDependency: AxisDependency
 ) {
     val textEntry = Entry(0f, 0f, text)
+    //记录绘制区域
+    val markerRect = Rect()
 }

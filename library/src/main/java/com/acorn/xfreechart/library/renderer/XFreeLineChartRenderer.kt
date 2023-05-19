@@ -294,8 +294,8 @@ class XFreeLineChartRenderer(
 
     private fun drawMarkers(c: Canvas?) {
         c ?: return
-        val markerData = mChart.getFixedMarkerData() ?: return
-        val markers = markerData.getMarkers()
+        val markerData = mChart.getFixedMarkerData()
+        val markers = markerData?.getMarkers() ?: return
         if (markers.isEmpty()) return
         val mMarkerView = mChart.getMarker() ?: return
         for (marker in markers) {
@@ -313,6 +313,7 @@ class XFreeLineChartRenderer(
         if (!mViewPortHandler.isInBounds(posArr[0], posArr[1])) return
         markerView.refreshContent(markerEntry.textEntry, null)
         markerView.draw(c, posArr[0], posArr[1])
+        markerEntry.markerRect.set(markerView.markerRect)
     }
 
     /**

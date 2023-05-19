@@ -1,6 +1,7 @@
 package com.github.mikephil.charting.components;
 
 import android.graphics.Canvas;
+import android.graphics.Rect;
 
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.highlight.Highlight;
@@ -44,4 +45,9 @@ public interface IMarker {
      * @param posY
      */
     void draw(Canvas canvas, float posX, float posY);
+
+    /**
+     * 显示位置
+     */
+    Rect getMarkerRect();
 }

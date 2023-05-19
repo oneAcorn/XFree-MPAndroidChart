@@ -49,6 +49,10 @@ class DemoActivity : AppCompatActivity() {
         for (i in 0..200) {
             addEntry(Entry(i.toFloat(), Random.nextInt(100).toFloat()))
         }
+        binding.lineChart.getFixedMarkerData()
+            ?.addMarker(FixedMarkerEntry(0, "text0", Entry(10f, 20f), YAxis.AxisDependency.LEFT))
+        binding.lineChart.getFixedMarkerData()
+            ?.addMarker(FixedMarkerEntry(0, "text1", Entry(100f, 70f), YAxis.AxisDependency.LEFT))
     }
 
     private fun addUnsortedData() {
@@ -156,7 +160,7 @@ class DemoActivity : AppCompatActivity() {
         set.highLightColor = Color.rgb(244, 117, 117)
         set.valueTextColor = Color.WHITE
         set.valueTextSize = 9f
-        set.showLegend(false)
+//        set.showLegend(false)
         set.setDrawValues(false)
         return set
     }
@@ -357,7 +361,7 @@ class DemoActivity : AppCompatActivity() {
         //添加Sine公式绘制
         prepareBezierDataSetAndInvalidate {
             addSine(startX, endX, a.toFloat(), b, c, d.toFloat())
-            binding.lineChart.lineData.notifyDataChanged()
+            binding.lineChart.lineData?.notifyDataChanged()
         }
     }
 

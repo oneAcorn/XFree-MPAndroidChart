@@ -1,12 +1,15 @@
 package com.acorn.xfreechart.library
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.ViewConfiguration
 import com.acorn.xfreechart.library.data.BezierData
 import com.acorn.xfreechart.library.data.FixedMarkerData
 import com.acorn.xfreechart.library.data.XFreeLineData
 import com.acorn.xfreechart.library.dataprovider.XFreeDataProvider
+import com.acorn.xfreechart.library.listener.FixedMarkerTouchListener
 import com.acorn.xfreechart.library.renderer.XFreeLineChartRenderer
 import com.github.mikephil.charting.charts.BarLineChartBase
 import com.github.mikephil.charting.data.LineData
@@ -18,6 +21,7 @@ import com.github.mikephil.charting.selectarea.SelectAreaHelper
  * Created by acorn on 2023/4/7.
  */
 class XFreeLineChart : BarLineChartBase<XFreeLineData>, XFreeDataProvider {
+    private val markerTouchListener = FixedMarkerTouchListener(this)
 
     constructor(context: Context?, attrs: AttributeSet?, defStyle: Int) : super(
         context,
@@ -35,12 +39,16 @@ class XFreeLineChart : BarLineChartBase<XFreeLineData>, XFreeDataProvider {
             SelectAreaHelper(this, ViewConfiguration.get(context).scaledTouchSlop, false, this)
     }
 
-    override fun getBezierData(): BezierData = mData.bezierData
+    override fun getBezierData(): BezierData? = mData?.bezierData
 
-    override fun getFixedMarkerData(): FixedMarkerData = mData.fixedMarkerData
+    override fun getFixedMarkerData(): FixedMarkerData? = mData?.fixedMarkerData
 
-    override fun getLineData(): LineData {
+    override fun getLineData(): LineData? {
         return mData
+    }
+
+    override fun setData(data: XFreeLineData?) {
+        super.setData(data)
     }
 
     fun setHighlighter(highlighter: IHighlighter) {
@@ -53,5 +61,16 @@ class XFreeLineChart : BarLineChartBase<XFreeLineData>, XFreeDataProvider {
             (mRenderer as? XFreeLineChartRenderer)?.releaseBitmap()
         }
         super.onDetachedFromWindow()
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        val isConsume = markerTouchListener.onTouch(this, event)
+        if (isConsume) return true
+        return super.onTouchEvent(event)
+    }
+
+    override fun refreshUI() {
+        invalidate()
     }
 }

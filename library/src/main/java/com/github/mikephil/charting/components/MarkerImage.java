@@ -164,4 +164,9 @@ public class MarkerImage implements IMarker {
 
         mDrawable.setBounds(mDrawableBoundsCache);
     }
+
+    @Override
+    public Rect getMarkerRect() {
+        return null;
+    }
 }
