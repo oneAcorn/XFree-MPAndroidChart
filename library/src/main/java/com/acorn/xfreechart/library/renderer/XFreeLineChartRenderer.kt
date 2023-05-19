@@ -376,10 +376,19 @@ class XFreeLineChartRenderer(
                     trans,
                     phaseY,
                     imageCache,
-                    circleRadius
+                    circleRadius,
+                    dataSet.highlightCircleRadius
                 )
             } else {
-                drawCirclesToCanvas(c, dataSet, trans, phaseY, imageCache, circleRadius)
+                drawCirclesToCanvas(
+                    c,
+                    dataSet,
+                    trans,
+                    phaseY,
+                    imageCache,
+                    circleRadius,
+                    dataSet.highlightCircleRadius
+                )
             }
         }
     }
@@ -400,12 +409,15 @@ class XFreeLineChartRenderer(
         trans: Transformer,
         phaseY: Float,
         imageCache: DataSetImageCache,
-        circleRadius: Float
+        circleRadius: Float,
+        highlightRadius: Float,
+        onlyDrawHighlight: Boolean = false
     ) {
         val entryCount = dataSet.entryCount
         //计算屏幕中需要绘制的点
         for (j in 0 until entryCount) {
             val e = dataSet.safeGetEntryForIndex(j) ?: continue
+            if (onlyDrawHighlight && !e.isHighLight) continue
             mCirclesBuffer[0] = e.x
             mCirclesBuffer[1] = e.y * phaseY
             trans.pointValuesToPixel(mCirclesBuffer)
@@ -418,13 +430,19 @@ class XFreeLineChartRenderer(
             ) {
                 continue
             }
-            val circleBitmap = imageCache.getBitmap(j)
+            val circleBitmap =
+                if (e.isHighLight) {
+                    imageCache.getHighlightBitmap(j)
+                } else {
+                    imageCache.getBitmap(j)
+                }
 
             if (circleBitmap != null) {
+                val offset = if (e.isHighLight) highlightRadius else circleRadius
                 c.drawBitmap(
                     circleBitmap,
-                    mCirclesBuffer[0] - circleRadius,
-                    mCirclesBuffer[1] - circleRadius,
+                    mCirclesBuffer[0] - offset,
+                    mCirclesBuffer[1] - offset,
                     null
                 )
             }
@@ -450,7 +468,8 @@ class XFreeLineChartRenderer(
         trans: Transformer,
         phaseY: Float,
         imageCache: DataSetImageCache,
-        circleRadius: Float
+        circleRadius: Float,
+        highlightRadius: Float
     ) {
         val entryCount = dataSet.entryCount
 
@@ -473,8 +492,16 @@ class XFreeLineChartRenderer(
             needDrawAmount++
         }
 //        Log.i(TAG, "drawCirclesToCanvasByThreshold: $needDrawAmount,$pointsLimitAmount")
-        if (needDrawAmount > pointsLimitAmount) return
-        drawCirclesToCanvas(c, dataSet, trans, phaseY, imageCache, circleRadius)
+        drawCirclesToCanvas(
+            c,
+            dataSet,
+            trans,
+            phaseY,
+            imageCache,
+            circleRadius,
+            highlightRadius,
+            needDrawAmount > pointsLimitAmount
+        )
     }
 
     override fun drawHighlighted(c: Canvas, indices: Array<out Highlight>) {

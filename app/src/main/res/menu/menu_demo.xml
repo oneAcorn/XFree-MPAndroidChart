@@ -19,6 +19,7 @@
 
     <item
         android:id="@+id/action_select_area"
+        android:checkable="true"
         android:title="select area"
         app:showAsAction="never" />
 

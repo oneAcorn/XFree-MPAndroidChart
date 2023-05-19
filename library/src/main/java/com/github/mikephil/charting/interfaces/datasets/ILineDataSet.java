@@ -42,6 +42,8 @@ public interface ILineDataSet extends ILineRadarDataSet<Entry> {
      */
     float getCircleHoleRadius();
 
+    float getHighlightCircleRadius();
+
     /**
      * Returns the color at the given index of the DataSet's circle-color array.
      * Performs a IndexOutOfBounds check by modulus.

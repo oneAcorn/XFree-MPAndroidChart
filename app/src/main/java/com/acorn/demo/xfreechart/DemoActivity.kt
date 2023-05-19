@@ -65,15 +65,11 @@ class DemoActivity : AppCompatActivity() {
         binding.lineChart.clear()
     }
 
-    private fun selectArea() {
-        binding.lineChart.enterSelectAreaMode { selectedSets ->
-            for (set in selectedSets) {
-                Toast.makeText(
-                    this@DemoActivity,
-                    "select(${set.set.label}):${set.entrys}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+    private fun selectArea(isSelectAreaMode: Boolean) {
+        if (isSelectAreaMode) {
+            binding.lineChart.enterSelectAreaMode()
+        } else {
+            binding.lineChart.quitSelectAreaMode()
         }
     }
 
@@ -150,13 +146,14 @@ class DemoActivity : AppCompatActivity() {
     private fun createSet(): XFreeLineDataSet<XFreeLineChart> {
         val set = XFreeLineDataSet(binding.lineChart, null, "Test Data")
         set.axisDependency = YAxis.AxisDependency.LEFT
-        set.color = ColorTemplate.getHoloBlue()
-        set.setCircleColor(Color.WHITE)
-        set.setDrawCircles(false)
+        set.color = Color.rgb(106, 150, 31)
+        set.setCircleColor(Color.rgb(106, 150, 31))
+        set.setDrawCircles(true)
         set.lineWidth = 2f
         set.circleRadius = 4f
+        set.highlightCircleRadius = 6f
         set.fillAlpha = 65
-        set.fillColor = ColorTemplate.getHoloBlue()
+        set.fillColor = Color.rgb(106, 150, 31)
         set.highLightColor = Color.rgb(244, 117, 117)
         set.valueTextColor = Color.WHITE
         set.valueTextSize = 9f
@@ -403,7 +400,8 @@ class DemoActivity : AppCompatActivity() {
                 resetChart()
             }
             R.id.action_select_area -> {
-                selectArea()
+                item.isChecked = !item.isChecked
+                selectArea(item.isChecked)
             }
             R.id.action_limit_circles_number -> {
                 item.isChecked = !item.isChecked

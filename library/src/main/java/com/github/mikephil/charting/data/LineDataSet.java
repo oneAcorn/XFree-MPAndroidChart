@@ -37,6 +37,8 @@ public class LineDataSet extends LineRadarDataSet<Entry> implements ILineDataSet
      */
     private float mCircleRadius = 8f;
 
+    private float mHighlightCircleRadius = 10f;
+
     /**
      * the hole radius of the circle-shaped value indicators
      */
@@ -100,6 +102,7 @@ public class LineDataSet extends LineRadarDataSet<Entry> implements ILineDataSet
         lineDataSet.mCircleHoleColor = mCircleHoleColor;
         lineDataSet.mCircleHoleRadius = mCircleHoleRadius;
         lineDataSet.mCircleRadius = mCircleRadius;
+        lineDataSet.mHighlightCircleRadius=mHighlightCircleRadius;
         lineDataSet.mCubicIntensity = mCubicIntensity;
         lineDataSet.mDashPathEffect = mDashPathEffect;
         lineDataSet.mDrawCircleHole = mDrawCircleHole;
@@ -167,6 +170,19 @@ public class LineDataSet extends LineRadarDataSet<Entry> implements ILineDataSet
     @Override
     public float getCircleRadius() {
         return mCircleRadius;
+    }
+
+    public void setHighlightCircleRadius(float highlightCircleRadius) {
+        if (highlightCircleRadius >= 1f) {
+            mHighlightCircleRadius = Utils.convertDpToPixel(highlightCircleRadius);
+        } else {
+            Log.e("LineDataSet", "Circle radius cannot be < 1");
+        }
+    }
+
+    @Override
+    public float getHighlightCircleRadius() {
+        return mHighlightCircleRadius;
     }
 
     /**

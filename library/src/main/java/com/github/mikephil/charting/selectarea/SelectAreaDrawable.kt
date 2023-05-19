@@ -2,6 +2,7 @@ package com.github.mikephil.charting.selectarea
 
 import android.graphics.*
 import android.graphics.drawable.Drawable
+import android.util.Log
 import com.github.mikephil.charting.utils.Utils
 import kotlin.math.abs
 
@@ -11,6 +12,7 @@ import kotlin.math.abs
  */
 class SelectAreaDrawable(private val minTouchSlop: Int, private val isSelectAllYAxis: Boolean) :
     Drawable() {
+    private val TAG="SelectArea"
     var mDrawRect: RectF? = null
         private set
     private var startX = 0f
@@ -23,6 +25,7 @@ class SelectAreaDrawable(private val minTouchSlop: Int, private val isSelectAllY
     private var isDragMode = false
 
     override fun draw(canvas: Canvas) {
+//        Log.i(TAG, "draw: $mDrawRect")
         val rect = mDrawRect ?: return
         canvas.drawRect(rect, paint)
     }

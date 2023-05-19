@@ -3,12 +3,10 @@ package com.github.mikephil.charting.charts;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.ViewConfiguration;
 
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider;
 import com.github.mikephil.charting.renderer.LineChartRenderer;
-import com.github.mikephil.charting.selectarea.SelectAreaHelper;
 
 /**
  * Chart that draws lines, surfaces, circles, ...
@@ -34,7 +32,6 @@ public class LineChart extends BarLineChartBase<LineData> implements LineDataPro
         super.init();
 
         mRenderer = new LineChartRenderer(this, mAnimator, mViewPortHandler);
-        mSelectAreaHelper = new SelectAreaHelper(this, ViewConfiguration.get(getContext()).getScaledTouchSlop(), true, this);
     }
 
     @Override

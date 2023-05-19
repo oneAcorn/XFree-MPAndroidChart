@@ -2,16 +2,21 @@ package com.acorn.xfreechart.library.renderer;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ColorSpace;
 import android.graphics.Paint;
 import android.graphics.Path;
 
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+
+import androidx.annotation.ColorInt;
 
 class DataSetImageCache {
 
     private Path mCirclePathBuffer = new Path();
 
     private Bitmap[] circleBitmaps;
+    private Bitmap[] highlightBitmaps;
     private final Paint mRenderPaint;
     private final Paint mCirclePaintInner;
 
@@ -33,9 +38,11 @@ class DataSetImageCache {
 
         if (circleBitmaps == null) {
             circleBitmaps = new Bitmap[size];
+            highlightBitmaps = new Bitmap[size];
             changeRequired = true;
         } else if (circleBitmaps.length != size) {
             circleBitmaps = new Bitmap[size];
+            highlightBitmaps = new Bitmap[size];
             changeRequired = true;
         }
 
@@ -54,6 +61,8 @@ class DataSetImageCache {
         int colorCount = set.getCircleColorCount();
         float circleRadius = set.getCircleRadius();
         float circleHoleRadius = set.getCircleHoleRadius();
+        float highlightRadius = set.getHighlightCircleRadius();
+
 
         for (int i = 0; i < colorCount; i++) {
 
@@ -99,7 +108,47 @@ class DataSetImageCache {
                             mCirclePaintInner);
                 }
             }
+
+            //highlight bitmap
+            Bitmap highlightBitmap = Bitmap.createBitmap((int) (highlightRadius * 2.1), (int) (highlightRadius * 2.1), conf);
+            Canvas highlightCanvas = new Canvas(highlightBitmap);
+            highlightBitmaps[i] = highlightBitmap;
+            mRenderPaint.setAlpha(76);
+            highlightCanvas.drawCircle(
+                    highlightRadius,
+                    highlightRadius,
+                    highlightRadius,
+                    mRenderPaint
+            );
+            mRenderPaint.setAlpha(255);
+            highlightCanvas.drawCircle(
+                    highlightRadius,
+                    highlightRadius,
+                    circleHoleRadius,
+                    mRenderPaint
+            );
         }
+    }
+
+    /**
+     * 30%透明度原色
+     *
+     * @param color
+     * @return
+     */
+    private int getHighlightColor(int color) {
+        float r = ((color >> 16) & 0xff) / 255.0f;
+        float g = ((color >> 8) & 0xff) / 255.0f;
+        float b = ((color) & 0xff) / 255.0f;
+        return argb(30, r, g, b);
+    }
+
+    @ColorInt
+    private static int argb(float alpha, float red, float green, float blue) {
+        return ((int) (alpha * 255.0f + 0.5f) << 24) |
+                ((int) (red * 255.0f + 0.5f) << 16) |
+                ((int) (green * 255.0f + 0.5f) << 8) |
+                (int) (blue * 255.0f + 0.5f);
     }
 
     /**
@@ -110,5 +159,9 @@ class DataSetImageCache {
      */
     protected Bitmap getBitmap(int index) {
         return circleBitmaps[index % circleBitmaps.length];
+    }
+
+    protected Bitmap getHighlightBitmap(int index) {
+        return highlightBitmaps[index % circleBitmaps.length];
     }
 }

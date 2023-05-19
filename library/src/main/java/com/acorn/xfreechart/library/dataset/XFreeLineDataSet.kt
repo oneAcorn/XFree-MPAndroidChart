@@ -20,6 +20,9 @@ class XFreeLineDataSet<T : LineDataProvider>(
      */
     var mPointVisibleThreshold = -1
 
+    //是否允许选择区域时选中此DataSet
+    var isSelectAreable = true
+
     //是否显示线
     var isShowLine = true
     private var _isShowLegend = true
