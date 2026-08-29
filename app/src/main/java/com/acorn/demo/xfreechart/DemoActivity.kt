@@ -2,15 +2,22 @@ package com.acorn.demo.xfreechart
 
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.SystemClock
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
+import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.acorn.demo.xfreechart.databinding.ActivityDemoBinding
 import com.acorn.xfreechart.library.XFreeLineChart
 import com.acorn.xfreechart.library.dataset.XFreeLineDataSet
 import com.acorn.xfreechart.library.highlight.XFreeHighlighter
+import com.acorn.xfreechart.library.renderer.XFreeLineChartRenderer
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
@@ -51,6 +58,105 @@ class DemoActivity : AppCompatActivity() {
         for (i in 0..100) {
             addEntry(Entry(Random.nextInt(5000).toFloat(), Random.nextInt(5000).toFloat()))
         }
+    }
+
+    /**
+     * Batch-insert [count] entries with a single notify at the end, and report the elapsed time.
+     * This measures the one-shot insertion cost.
+     */
+    private fun addBatchData(count: Int, unsorted: Boolean = false) {
+        var lineData = binding.lineChart.data
+        if (lineData == null) {
+            lineData = LineData()
+            binding.lineChart.data = lineData
+        }
+        if (lineData.dataSetCount == 0) {
+            lineData.addDataSet(createSet())
+        }
+        val start = SystemClock.elapsedRealtime()
+        val baseX = if (lineData.entryCount > 0) lineData.xMax + 1f else 0f
+        val yBase = if (lineData.entryCount > 0) lineData.yMax + 1f else 0f
+        for (i in 0 until count) {
+            val x = if (unsorted) Random.nextInt(5000).toFloat() else baseX + i
+            val y = if (unsorted) Random.nextInt(5000).toFloat() else Random.nextInt(5000).toFloat()
+            lineData.addEntry(Entry(x, y), 0)
+        }
+        lineData.notifyDataChanged()
+        binding.lineChart.notifyDataSetChanged()
+        binding.lineChart.invalidate()
+        val elapsed = SystemClock.elapsedRealtime() - start
+        Toast.makeText(
+            this@DemoActivity,
+            "batch insert $count entries in $elapsed ms (total ${lineData.entryCount})",
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
+    /**
+     * Simulate the realtime path (addEntry -> notifyDataChanged -> notifyDataSetChanged -> moveViewToX
+     * per single entry), chunked across frames to avoid ANR, timing only the insert work.
+     * Shows how the per-insert cost grows as the chart gets bigger (O(n) per insert).
+     */
+    private fun insertOneByOne(total: Int) {
+        val handler = Handler(Looper.getMainLooper())
+        var remaining = total
+        var measureMs = 0L
+        val chunkSize = 20
+        val step = object : Runnable {
+            override fun run() {
+                val n = minOf(chunkSize, remaining)
+                val start = SystemClock.elapsedRealtime()
+                repeat(n) {
+                    val x = (binding.lineChart.data?.xMax ?: 0f) + 1f
+                    addEntry(Entry(x, Random.nextInt(5000).toFloat()))
+                }
+                measureMs += SystemClock.elapsedRealtime() - start
+                remaining -= n
+                if (remaining > 0) {
+                    handler.post(this)
+                } else {
+                    Toast.makeText(
+                        this@DemoActivity,
+                        "one-by-one: $total inserts in $measureMs ms (avg ${measureMs / total} ms/insert)",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+        handler.post(step)
+    }
+
+    private var debugOverlay: TextView? = null
+
+    private fun setShowDrawTime(enable: Boolean) {
+        val renderer = binding.lineChart.renderer as? XFreeLineChartRenderer
+        if (enable) {
+            if (debugOverlay == null) {
+                val tv = TextView(this).apply {
+                    setTextColor(Color.BLACK)
+                    textSize = 12f
+                    setPadding(8, 8, 8, 8)
+                    text = "line: -ms  circles: -ms"
+                }
+                val lp = ConstraintLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                lp.topToBottom = R.id.toolbar
+                lp.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+                binding.root.addView(tv, lp)
+                debugOverlay = tv
+            }
+            renderer?.onFrameDrawTimeListener = { lineMs, circleMs ->
+                debugOverlay?.text =
+                    String.format("line: %.1fms  circles: %.1fms", lineMs, circleMs)
+            }
+        } else {
+            renderer?.onFrameDrawTimeListener = null
+            debugOverlay?.let { binding.root.removeView(it) }
+            debugOverlay = null
+        }
+        binding.lineChart.invalidate()
     }
 
     private fun resetChart() {
@@ -258,6 +364,37 @@ class DemoActivity : AppCompatActivity() {
             }
             R.id.action_add_unsorted_data -> {
                 addUnsortedData()
+            }
+            R.id.action_add_data_1w -> {
+                addBatchData(10_000)
+            }
+            R.id.action_add_data_5w -> {
+                addBatchData(50_000)
+            }
+            R.id.action_add_data_20w -> {
+                addBatchData(200_000)
+            }
+            R.id.action_add_data_100w -> {
+                addBatchData(1_000_000)
+            }
+            R.id.action_add_unsorted_data_10w -> {
+                addBatchData(100_000, unsorted = true)
+            }
+            R.id.action_insert_1000_one_by_one -> {
+                insertOneByOne(1000)
+            }
+            R.id.action_show_draw_time -> {
+                item.isChecked = !item.isChecked
+                setShowDrawTime(item.isChecked)
+            }
+            R.id.action_zoom_in -> {
+                repeat(3) { binding.lineChart.zoomIn() }
+            }
+            R.id.action_zoom_out -> {
+                binding.lineChart.zoomOut()
+            }
+            R.id.action_fit_screen -> {
+                binding.lineChart.fitScreen()
             }
             R.id.action_reset_chart -> {
                 resetChart()

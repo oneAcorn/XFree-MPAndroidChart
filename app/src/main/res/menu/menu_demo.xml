@@ -13,6 +13,57 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_add_data_1w"
+        android:title="test: batch add 10,000"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_add_data_5w"
+        android:title="test: batch add 50,000"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_add_data_20w"
+        android:title="test: batch add 200,000"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_add_data_100w"
+        android:title="test: batch add 1,000,000"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_add_unsorted_data_10w"
+        android:title="test: batch add 100,000 unsorted"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_insert_1000_one_by_one"
+        android:title="test: realtime add 1,000 (one by one)"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_show_draw_time"
+        android:checkable="true"
+        android:title="test: show draw time"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_zoom_in"
+        android:title="test: zoom in"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_zoom_out"
+        android:title="test: zoom out"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_fit_screen"
+        android:title="test: fit screen"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_reset_chart"
         android:title="reset chart"
         app:showAsAction="never" />
